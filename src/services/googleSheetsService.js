@@ -51,10 +51,14 @@ class GoogleSheetsService {
 
   getHeaderValues(sheetTitle) {
     const headers = {
-      'User Signups': ['Timestamp', 'User ID', 'Email', 'Signup Date'],
-      'Profile Updates': ['Timestamp', 'User ID', 'Email', 'Age', 'Gender', 'City', 'Diet Type', 'Budget Level', 'Lifestyle', 'WhatsApp Consent', 'Marketing Consent', 'Phone'],
-      'Diet Plans': ['Timestamp', 'User ID', 'Email', 'Diet Type', 'Budget Level', 'City', 'Recommendations Count', 'Top Recommendation'],
-      'Protection Plans': ['Timestamp', 'User ID', 'Email', 'Age', 'Lifestyle', 'Risk Band', 'Plan Sections']
+      'User Logins': ['Timestamp', 'User ID', 'Email', 'Signup Date', 'IP Address', 'User Agent', 'Profile Completed', 'Avatar Type', 'City', 'Age', 'Gender', 'Diet Type', 'Budget Level', 'Lifestyle'],
+      'Bot Data': ['Timestamp', 'User ID', 'Email', 'Phone', 'Bot Message', 'Bot Response', 'Intent', 'Action Taken', 'WhatsApp Sent', 'Session ID', 'Message Type'],
+      'User Analytics': ['Timestamp', 'User ID', 'Email', 'Event Type', 'Event Data', 'Session ID', 'IP Address', 'User Agent'],
+      'Content Analytics': ['Timestamp', 'Content Type', 'Content ID', 'Title', 'Views', 'Unique Users', 'Conversion Rate', 'Avg Rating'],
+      'System Metrics': ['Timestamp', 'Metric Name', 'Value', 'Unit', 'Metadata'],
+      'Security Logs': ['Timestamp', 'User ID', 'Event Type', 'IP Address', 'User Agent', 'Details', 'Severity'],
+      'Premium Usage': ['Timestamp', 'User ID', 'Feature Used', 'Usage Count', 'Plan Type', 'Subscription Date'],
+      'Avatar History': ['Timestamp', 'User ID', 'Avatar Type', 'Generation Method', 'Template Used', 'Processing Time']
     };
     
     return headers[sheetTitle] || ['Timestamp', 'User ID', 'Data'];

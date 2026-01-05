@@ -13,6 +13,7 @@ const webhookRoutes = require('./routes/webhook');
 const automationRoutes = require('./routes/automation');
 const analyticsRoutes = require('./routes/analytics');
 const avatarRoutes = require('./routes/avatar');
+const botDataRoutes = require('./routes/botData');
 
 // Import middleware
 const authMiddleware = require('./middlewares/auth');
@@ -64,6 +65,7 @@ app.use('/api/webhook', webhookRoutes);
 app.use('/api/automation', automationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/avatar', avatarRoutes);
+app.use('/api/bot-data', botDataRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -87,6 +89,7 @@ app.listen(PORT, async () => {
   console.log(`🔗 Webhook endpoints: http://localhost:${PORT}/api/webhook`);
   console.log(`📊 Analytics endpoints: http://localhost:${PORT}/api/analytics`);
   console.log(`👤 Avatar endpoints: http://localhost:${PORT}/api/avatar`);
+  console.log(`🤖 Bot data endpoints: http://localhost:${PORT}/api/bot-data`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   
   // Initialize Phase 3 services
