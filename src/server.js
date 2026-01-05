@@ -11,53 +11,59 @@ const personalizationRoutes = require('./routes/personalization');
 const adminRoutes = require('./routes/admin');
 const webhookRoutes = require('./routes/webhook');
 const automationRoutes = require('./routes/automation');
+const analyticsRoutes = require('./routes/analytics');
+const avatarRoutes = require('./routes/avatar');
+
+// Import middleware
+const authMiddleware = require('./middlewares/auth');
+const RoleMiddleware = require('./middlewares/roles');
+const SecurityMiddleware = require('./middlewares/security');
+const ProductionMiddleware = require('./middlewares/production');
 
 // Initialize services
 const googleSheetsService = require('./services/googleSheetsService');
 const sheetsSyncService = require('./services/sheetsSyncService');
 const automationService = require('./services/automationService');
+const analyticsService = require('./services/analyticsService');
 
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later.'
-  }
-});
+// Apply production middleware
+app.use(ProductionMiddleware.validateEnvironment);
+app.use(ProductionMiddleware.correlationId);
+app.use(ProductionMiddleware.requestLogger);
+app.use(ProductionMiddleware.performanceMonitor);
+app.use(ProductionMiddleware.apiVersioning);
 
-// Middleware
-app.use(helmet()); // Security headers
-app.use(limiter);  // Rate limiting
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true
-}));
+// Security middleware
+app.use(SecurityMiddleware.securityHeaders());
+app.use(cors(SecurityMiddleware.corsOptions()));
+
+// Rate limiting
+app.use(SecurityMiddleware.apiRateLimiter());
+
+// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Suspicious activity monitoring
+app.use(SecurityMiddleware.monitorSuspiciousActivity);
+
 // Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'CerviCare Backend API is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
+app.get('/api/health', ProductionMiddleware.healthCheck);
+app.get('/api/health/detailed', ProductionMiddleware.detailedHealthCheck);
 
 // API Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', SecurityMiddleware.authRateLimiter(), authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api', personalizationRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/admin', SecurityMiddleware.adminRateLimiter(), adminRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/automation', automationRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/avatar', avatarRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -68,15 +74,7 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
-  console.error('Global error handler:', err);
-  
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
-});
+app.use(ProductionMiddleware.globalErrorHandler);
 
 // Start server
 app.listen(PORT, async () => {
@@ -87,7 +85,8 @@ app.listen(PORT, async () => {
   console.log(`🎯 Personalization endpoints: http://localhost:${PORT}/api`);
   console.log(`🛡️ Admin endpoints: http://localhost:${PORT}/api/admin`);
   console.log(`🔗 Webhook endpoints: http://localhost:${PORT}/api/webhook`);
-  console.log(`🤖 Automation endpoints: http://localhost:${PORT}/api/automation`);
+  console.log(`📊 Analytics endpoints: http://localhost:${PORT}/api/analytics`);
+  console.log(`👤 Avatar endpoints: http://localhost:${PORT}/api/avatar`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   
   // Initialize Phase 3 services
@@ -98,6 +97,7 @@ app.listen(PORT, async () => {
   sheetsSyncService.startBackgroundProcessing();
   
   console.log('✅ Phase 3 services initialized successfully');
+  console.log('🚀 Phase 4 production hardening enabled');
 });
 
 // Graceful shutdown
