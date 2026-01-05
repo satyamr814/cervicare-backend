@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cervical Cancer Protection Plan - CerviCare</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Montserrat Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="protection.css">
+    
+    <!-- Comprehensive Audio Blocker - Must load first to block all audio -->
+    <script>
+        // IMMEDIATE BLOCK - Run before anything else
+        (function() {
+            'use strict';
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const originalSpeak = window.speechSynthesis.speak;
+                window.speechSynthesis.speak = function() {
+                    window.speechSynthesis.cancel();
+                    return false;
+                };
+                setInterval(function() {
+                    window.speechSynthesis.cancel();
+                }, 5);
+            }
+        })();
+    </script>
+    <script src="audio-blocker.js"></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="navbar">
+    <div class="logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>CerviCare</span>
+    </div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="index.html#risk-section-feature">Assessment</a>
+        <a href="index.html#ai-bot">HealthBot</a>
+        <a href="index.html#doctors-section">Find Doctors</a>
+        <a href="protection.html" class="active">Protection</a>
+    </nav>
+
+    <div class="auth-btns">
+        <a href="auth.html?tab=login" class="btn-click">Sign In</a>
+        <a href="auth.html?tab=signup" class="btn-click">Sign Up</a>
+    </div>
+</header>
+
+<!-- ===== PROTECTION PLAN PAGE ===== -->
+<section class="protection-page">
+    <div class="protection-container">
+        
+        <!-- Page Header -->
+        <div class="protection-header">
+            <div>
+                <h1>Cervical Cancer Protection Plan</h1>
+                <p>Evidence-based recommendations to reduce your cancer risk</p>
+            </div>
+            <a href="index.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Dashboard Summary -->
+        <div class="dashboard-summary">
+            <div class="dashboard-card">
+                <div class="dashboard-stat">
+                    <div class="stat-circle protection-score">
+                        <svg class="progress-ring" width="80" height="80">
+                            <circle class="progress-ring-circle" cx="40" cy="40" r="36" stroke="#e5e7eb" stroke-width="6" fill="transparent"/>
+                            <circle class="progress-ring-progress" cx="40" cy="40" r="36" stroke="#ef4444" stroke-width="6" fill="transparent" stroke-dasharray="9 226" stroke-dashoffset="0"/>
+                        </svg>
+                        <span class="stat-number">4%</span>
+                    </div>
+                    <h3>Protection Score</h3>
+                    <p>Needs immediate attention</p>
+                </div>
+
+                <div class="dashboard-stat">
+                    <div class="stat-circle blue">
+                        <span class="stat-number">7</span>
+                    </div>
+                    <h3>Total Plans</h3>
+                    <p>Available recommendations</p>
+                </div>
+
+                <div class="dashboard-stat">
+                    <div class="stat-circle yellow">
+                        <span class="stat-number" id="inProgressCount">0</span>
+                    </div>
+                    <h3>In Progress</h3>
+                    <p>Currently working on</p>
+                </div>
+
+                <div class="dashboard-stat">
+                    <div class="stat-circle green">
+                        <span class="stat-number" id="completedCount">0</span>
+                    </div>
+                    <h3>Completed</h3>
+                    <p>Successfully implemented</p>
+                </div>
+            </div>
+
+            <div class="overall-progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="overallProgress"></div>
+                </div>
+                <p class="progress-text"><span id="completedText">0</span>/7 completed</p>
+            </div>
+        </div>
+
+        <!-- Plans Section -->
+        <div class="plans-section">
+            <div class="plans-header">
+                <h2>Your Personalized Protection Plans</h2>
+                <button class="regenerate-btn">
+                    <i class="fa-solid fa-rotate"></i> Regenerate Plans
+                </button>
+            </div>
+
+            <!-- Plan 1: Early Detection & Cervical Cancer Screening Plan -->
+            <div class="plan-card" data-plan-id="1" data-status="not-started">
+                <div class="plan-border poppy-pink"></div>
+                <div class="plan-content">
+                    <div class="plan-tags">
+                        <span class="tag high-priority">High Priority</span>
+                        <span class="tag ai-generated">AI_generated</span>
+                    </div>
+                    
+                    <div class="plan-header-row">
+                        <h3 class="plan-title">Early Detection & Cervical Cancer Screening Plan</h3>
+                        <div class="plan-status" data-status="not-started">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Not Started</span>
+                        </div>
+                    </div>
+
+                    <p class="plan-description">Comprehensive plan to ensure early detection and regular screening for cervical health.</p>
+
+                    <div class="implementation-steps">
+                        <h4>Implementation Steps:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <p>Schedule recommended cervical screening tests</p>
+                                    <small>Pap smear / VIA / HPV test as advised by age & risk level</small>
+                                    <span class="step-frequency">(Once every 3–5 years or as recommended)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <p>Track symptoms and warning signs</p>
+                                    <small>Monitor abnormal bleeding, unusual discharge, pelvic pain</small>
+                                    <span class="step-frequency">(Daily awareness, log if symptoms appear)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <p>Maintain menstrual & reproductive health log</p>
+                                    <small>Record cycle irregularities, pregnancies, contraceptive use</small>
+                                    <span class="step-frequency">(Monthly updates)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <p>Attend regular gynecological check-ups</p>
+                                    <small>Follow-up visits for screening results or AI risk alerts</small>
+                                    <span class="step-frequency">(Annually or as advised)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">5</span>
+                                <div class="step-content">
+                                    <p>Update personal & family medical history</p>
+                                    <small>Include cervical, uterine, or related cancers</small>
+                                    <span class="step-frequency">(Annually or when new information arises)</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="plan-duration">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Expected Duration: <strong>12 weeks</strong></span>
+                    </div>
+
+                    <div class="plan-notes">
+                        <h4>Your Notes:</h4>
+                        <div class="notes-wrapper">
+                            <textarea class="notes-textarea" placeholder="Add your personal notes, progress, or thoughts..."></textarea>
+                            <button class="save-notes-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-timer" style="display: none;">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="timer-text">Started <span class="time-ago">0</span> minutes ago</span>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button class="start-plan-btn">
+                            <i class="fa-solid fa-plus"></i> Start This Plan
+                        </button>
+                        <button class="mark-complete-btn" style="display: none;">
+                            <i class="fa-solid fa-check"></i> Mark Complete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan 2: Cervical Cancer Risk Reduction Strategy -->
+            <div class="plan-card" data-plan-id="2" data-status="not-started">
+                <div class="plan-border poppy-pink"></div>
+                <div class="plan-content">
+                    <div class="plan-tags">
+                        <span class="tag high-priority">High Priority</span>
+                        <span class="tag ai-generated">AI_generated</span>
+                    </div>
+                    
+                    <div class="plan-header-row">
+                        <h3 class="plan-title">Cervical Cancer Risk Reduction Strategy</h3>
+                        <div class="plan-status" data-status="not-started">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Not Started</span>
+                        </div>
+                    </div>
+
+                    <p class="plan-description">Comprehensive strategy to reduce risk factors and protect against cervical cancer.</p>
+
+                    <div class="implementation-steps">
+                        <h4>Implementation Steps:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <p>Reduce risk of HPV infection</p>
+                                    <small>Practice safe sexual health measures and regular screening</small>
+                                    <span class="step-frequency">(Ongoing)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <p>Maintain intimate hygiene and avoid harmful products</p>
+                                    <small>Avoid scented vaginal products and harsh chemicals</small>
+                                    <span class="step-frequency">(Ongoing)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <p>Limit tobacco exposure (active & passive)</p>
+                                    <small>Avoid smoking and second-hand smoke</small>
+                                    <span class="step-frequency">(Ongoing)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <p>Support immune health through lifestyle choices</p>
+                                    <small>Balanced nutrition, stress management, adequate sleep</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="plan-duration">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Expected Duration: <strong>24 weeks</strong></span>
+                    </div>
+
+                    <div class="plan-notes">
+                        <h4>Your Notes:</h4>
+                        <div class="notes-wrapper">
+                            <textarea class="notes-textarea" placeholder="Add your personal notes, progress, or thoughts..."></textarea>
+                            <button class="save-notes-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-timer" style="display: none;">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="timer-text">Started <span class="time-ago">0</span> minutes ago</span>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button class="start-plan-btn">
+                            <i class="fa-solid fa-plus"></i> Start This Plan
+                        </button>
+                        <button class="mark-complete-btn" style="display: none;">
+                            <i class="fa-solid fa-check"></i> Mark Complete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan 3: Advanced Cervical Health Lifestyle Integration -->
+            <div class="plan-card" data-plan-id="3" data-status="not-started">
+                <div class="plan-border poppy-pink"></div>
+                <div class="plan-content">
+                    <div class="plan-tags">
+                        <span class="tag medium-priority">Medium Priority</span>
+                        <span class="tag ai-generated">AI_generated</span>
+                    </div>
+                    
+                    <div class="plan-header-row">
+                        <h3 class="plan-title">Advanced Cervical Health Lifestyle Integration</h3>
+                        <div class="plan-status" data-status="not-started">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Not Started</span>
+                        </div>
+                    </div>
+
+                    <p class="plan-description">Comprehensive lifestyle transformation program combining all cervical health prevention strategies.</p>
+
+                    <div class="implementation-steps">
+                        <h4>Implementation Steps:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <p>Integrate all cervical health plans into daily routine</p>
+                                    <small>Screening reminders, symptom tracking, hygiene practices</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <p>Maintain consistent nutrition timing and balanced diet</p>
+                                    <small>Focus on immunity-supporting, anti-inflammatory foods</small>
+                                    <span class="step-frequency">(3 times per week or as planned)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <p>Use clinician-approved supplements if needed</p>
+                                    <small>Vitamin D, Iron, Folate (only as advised)</small>
+                                    <span class="step-frequency">(Daily, if prescribed)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <p>Practice structured stress-management techniques</p>
+                                    <small>Yoga, meditation, breathing exercises to support immune health</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">5</span>
+                                <div class="step-content">
+                                    <p>Engage in women's health or cervical cancer awareness groups</p>
+                                    <small>Community education, screening drives, peer support</small>
+                                    <span class="step-frequency">(Weekly)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">6</span>
+                                <div class="step-content">
+                                    <p>Stay informed on cervical health & screening guidelines</p>
+                                    <small>Updates on Pap smear, HPV testing, vaccination guidelines</small>
+                                    <span class="step-frequency">(Monthly)</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="plan-duration">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Expected Duration: <strong>16 weeks</strong></span>
+                    </div>
+
+                    <div class="plan-notes">
+                        <h4>Your Notes:</h4>
+                        <div class="notes-wrapper">
+                            <textarea class="notes-textarea" placeholder="Add your personal notes, progress, or thoughts..."></textarea>
+                            <button class="save-notes-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-timer" style="display: none;">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="timer-text">Started <span class="time-ago">0</span> minutes ago</span>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button class="start-plan-btn">
+                            <i class="fa-solid fa-plus"></i> Start This Plan
+                        </button>
+                        <button class="mark-complete-btn" style="display: none;">
+                            <i class="fa-solid fa-check"></i> Mark Complete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan 4: Cervical Cancer–Protective Nutrition Foundation -->
+            <div class="plan-card" data-plan-id="4" data-status="not-started">
+                <div class="plan-border poppy-pink"></div>
+                <div class="plan-content">
+                    <div class="plan-tags">
+                        <span class="tag medium-priority">Medium Priority</span>
+                        <span class="tag ai-generated">AI_generated</span>
+                    </div>
+                    
+                    <div class="plan-header-row">
+                        <h3 class="plan-title">Cervical Cancer–Protective Nutrition Foundation</h3>
+                        <div class="plan-status" data-status="not-started">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Not Started</span>
+                        </div>
+                    </div>
+
+                    <p class="plan-description">Nutrition-focused plan to support cervical health through evidence-based dietary choices.</p>
+
+                    <div class="implementation-steps">
+                        <h4>Implementation Steps:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <p>Consume 5–7 servings of colorful fruits and vegetables</p>
+                                    <small>Focus on vitamin C, A, and antioxidant-rich foods</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <p>Include cruciferous vegetables</p>
+                                    <small>Broccoli, cabbage, cauliflower, kale to support detox pathways</small>
+                                    <span class="step-frequency">(4 times per week)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <p>Prioritize folate-rich foods</p>
+                                    <small>Spinach, legumes, citrus fruits, fortified grains</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <p>Choose whole grains over refined carbohydrates</p>
+                                    <small>Brown rice, oats, millets to stabilize blood sugar and immunity</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">5</span>
+                                <div class="step-content">
+                                    <p>Limit processed foods and red meat</p>
+                                    <small>Reduce inflammatory and preservative exposure</small>
+                                    <span class="step-frequency">(Weekly limit)</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="plan-duration">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Expected Duration: <strong>12 weeks</strong></span>
+                    </div>
+
+                    <div class="plan-notes">
+                        <h4>Your Notes:</h4>
+                        <div class="notes-wrapper">
+                            <textarea class="notes-textarea" placeholder="Add your personal notes, progress, or thoughts..."></textarea>
+                            <button class="save-notes-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-timer" style="display: none;">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="timer-text">Started <span class="time-ago">0</span> minutes ago</span>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button class="start-plan-btn">
+                            <i class="fa-solid fa-plus"></i> Start This Plan
+                        </button>
+                        <button class="mark-complete-btn" style="display: none;">
+                            <i class="fa-solid fa-check"></i> Mark Complete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan 5: Cervical Health–Focused Exercise Program -->
+            <div class="plan-card" data-plan-id="5" data-status="not-started">
+                <div class="plan-border poppy-pink"></div>
+                <div class="plan-content">
+                    <div class="plan-tags">
+                        <span class="tag medium-priority">Medium Priority</span>
+                        <span class="tag ai-generated">AI_generated</span>
+                    </div>
+                    
+                    <div class="plan-header-row">
+                        <h3 class="plan-title">Cervical Health–Focused Exercise Program</h3>
+                        <div class="plan-status" data-status="not-started">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Not Started</span>
+                        </div>
+                    </div>
+
+                    <p class="plan-description">Exercise program designed to support cervical health through physical activity and movement.</p>
+
+                    <div class="implementation-steps">
+                        <h4>Implementation Steps:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <p>Moderate aerobic activity</p>
+                                    <small>Brisk walking, cycling, swimming to improve circulation and immunity</small>
+                                    <span class="step-frequency">(5 days per week)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <p>Strength & resistance training</p>
+                                    <small>Bodyweight exercises or light weights to support metabolic and hormonal health</small>
+                                    <span class="step-frequency">(2–3 times per week)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <p>Yoga, stretching & pelvic floor exercises</p>
+                                    <small>Improves flexibility, stress reduction, and reproductive health</small>
+                                    <span class="step-frequency">(3 times per week)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <p>Increase daily movement</p>
+                                    <small>Aim for higher step count, reduced sitting time</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="plan-duration">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Expected Duration: <strong>12 weeks</strong></span>
+                    </div>
+
+                    <div class="plan-notes">
+                        <h4>Your Notes:</h4>
+                        <div class="notes-wrapper">
+                            <textarea class="notes-textarea" placeholder="Add your personal notes, progress, or thoughts..."></textarea>
+                            <button class="save-notes-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-timer" style="display: none;">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="timer-text">Started <span class="time-ago">0</span> minutes ago</span>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button class="start-plan-btn">
+                            <i class="fa-solid fa-plus"></i> Start This Plan
+                        </button>
+                        <button class="mark-complete-btn" style="display: none;">
+                            <i class="fa-solid fa-check"></i> Mark Complete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan 6: Stress Reduction & Immune Support for Cervical Health -->
+            <div class="plan-card" data-plan-id="6" data-status="not-started">
+                <div class="plan-border poppy-pink"></div>
+                <div class="plan-content">
+                    <div class="plan-tags">
+                        <span class="tag medium-priority">Medium Priority</span>
+                        <span class="tag ai-generated">AI_generated</span>
+                    </div>
+                    
+                    <div class="plan-header-row">
+                        <h3 class="plan-title">Stress Reduction & Immune Support for Cervical Health</h3>
+                        <div class="plan-status" data-status="not-started">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Not Started</span>
+                        </div>
+                    </div>
+
+                    <p class="plan-description">Comprehensive stress management and immune support plan for optimal cervical health.</p>
+
+                    <div class="implementation-steps">
+                        <h4>Implementation Steps:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <p>Daily stress-regulation practices</p>
+                                    <small>Meditation, deep breathing, or guided mindfulness to reduce chronic stress</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <p>Maintain consistent, restorative sleep routine</p>
+                                    <small>Aim for 7–8 hours to support immune and hormonal balance</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <p>Strengthen emotional & social support systems</p>
+                                    <small>Family connection, peer groups, or women's health communities</small>
+                                    <span class="step-frequency">(Weekly)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <p>Practice relaxation and body-based stress release techniques</p>
+                                    <small>Progressive muscle relaxation, gentle yoga, or breathing exercises</small>
+                                    <span class="step-frequency">(3 times per week)</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="plan-duration">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Expected Duration: <strong>8 weeks</strong></span>
+                    </div>
+
+                    <div class="plan-notes">
+                        <h4>Your Notes:</h4>
+                        <div class="notes-wrapper">
+                            <textarea class="notes-textarea" placeholder="Add your personal notes, progress, or thoughts..."></textarea>
+                            <button class="save-notes-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-timer" style="display: none;">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="timer-text">Started <span class="time-ago">0</span> minutes ago</span>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button class="start-plan-btn">
+                            <i class="fa-solid fa-plus"></i> Start This Plan
+                        </button>
+                        <button class="mark-complete-btn" style="display: none;">
+                            <i class="fa-solid fa-check"></i> Mark Complete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan 7: Sleep Optimization for Cervical Cellular Repair -->
+            <div class="plan-card" data-plan-id="7" data-status="not-started">
+                <div class="plan-border poppy-pink"></div>
+                <div class="plan-content">
+                    <div class="plan-tags">
+                        <span class="tag medium-priority">Medium Priority</span>
+                        <span class="tag ai-generated">AI_generated</span>
+                    </div>
+                    
+                    <div class="plan-header-row">
+                        <h3 class="plan-title">Sleep Optimization for Cervical Cellular Repair</h3>
+                        <div class="plan-status" data-status="not-started">
+                            <i class="fa-regular fa-clock"></i>
+                            <span>Not Started</span>
+                        </div>
+                    </div>
+
+                    <p class="plan-description">Optimize sleep patterns to support cellular repair and cervical health.</p>
+
+                    <div class="implementation-steps">
+                        <h4>Implementation Steps:</h4>
+                        <ol class="steps-list">
+                            <li>
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <p>Create an optimal sleep environment</p>
+                                    <small>Cool, dark, quiet room to promote deep restorative sleep</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <p>Establish a calming pre-sleep routine</p>
+                                    <small>Light stretching, breathing exercises, or relaxation techniques</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <p>Limit screen exposure before bedtime</p>
+                                    <small>Reduce blue light to support natural melatonin release</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <p>Maintain a consistent sleep–wake schedule</p>
+                                    <small>Go to bed and wake up at the same time each day</small>
+                                    <span class="step-frequency">(Daily)</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="plan-duration">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Expected Duration: <strong>6 weeks</strong></span>
+                    </div>
+
+                    <div class="plan-notes">
+                        <h4>Your Notes:</h4>
+                        <div class="notes-wrapper">
+                            <textarea class="notes-textarea" placeholder="Add your personal notes, progress, or thoughts..."></textarea>
+                            <button class="save-notes-btn">Save</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-timer" style="display: none;">
+                        <i class="fa-regular fa-clock"></i>
+                        <span class="timer-text">Started <span class="time-ago">0</span> minutes ago</span>
+                    </div>
+
+                    <div class="plan-actions">
+                        <button class="start-plan-btn">
+                            <i class="fa-solid fa-plus"></i> Start This Plan
+                        </button>
+                        <button class="mark-complete-btn" style="display: none;">
+                            <i class="fa-solid fa-check"></i> Mark Complete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script src="protection.js"></script>
+</body>
+</html>
+

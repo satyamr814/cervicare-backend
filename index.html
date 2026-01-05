@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CerviCare – AI Cervical Cancer Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Montserrat Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Leaflet CSS (OpenStreetMap - Free, no API key needed) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Comprehensive Audio Blocker - Must load first to block all audio -->
+    <script>
+        // IMMEDIATE BLOCK - Run before anything else
+        (function() {
+            'use strict';
+            // Block speech synthesis IMMEDIATELY
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                // Override speak immediately
+                const originalSpeak = window.speechSynthesis.speak;
+                window.speechSynthesis.speak = function() {
+                    window.speechSynthesis.cancel();
+                    return false;
+                };
+                // Cancel continuously
+                setInterval(function() {
+                    window.speechSynthesis.cancel();
+                }, 5); // Every 5ms - ultra aggressive
+            }
+        })();
+    </script>
+    <script src="audio-blocker.js"></script>
+    
+    <!-- Disable all audio immediately -->
+    <script>
+        // Disable audio as early as possible
+        (function() {
+            // Cancel any speech synthesis
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            
+            // Wait for DOM to be ready and mute all media
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', muteAllMedia);
+            } else {
+                muteAllMedia();
+            }
+            
+            function muteAllMedia() {
+                // Mute all videos
+                document.querySelectorAll('video').forEach(function(video) {
+                    video.muted = true;
+                    video.volume = 0;
+                });
+                
+                // Mute and pause all audio
+                document.querySelectorAll('audio').forEach(function(audio) {
+                    audio.muted = true;
+                    audio.volume = 0;
+                    audio.pause();
+                });
+            }
+            
+            // Monitor for new media elements
+            const observer = new MutationObserver(function(mutations) {
+                document.querySelectorAll('video, audio').forEach(function(media) {
+                    if (media.tagName === 'VIDEO') {
+                        media.muted = true;
+                        media.volume = 0;
+                    } else if (media.tagName === 'AUDIO') {
+                        media.muted = true;
+                        media.volume = 0;
+                        media.pause();
+                    }
+                });
+            });
+            
+            // Start observing when DOM is ready
+            if (document.body) {
+                observer.observe(document.body, { childList: true, subtree: true });
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    observer.observe(document.body, { childList: true, subtree: true });
+                });
+            }
+        })();
+    </script>
+</head>
+
+<div class="floating-ai-button">
+    <a href="#" class="floating-ai-btn chatbot-trigger" id="ai-analysis-btn">
+        <i class="fa-solid fa-brain"></i>
+        <span class="ai-btn-text">AI Analysis</span>
+    </a>
+</div>
+
+<body>
+<!-- ===== HEADER ===== -->
+<header class="navbar">
+    <div class="logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>CerviCare</span>
+    </div>
+
+    <nav>
+        <a href="#hero">Home</a>
+        <a href="#risk-section-feature">Assessment</a>
+        <a href="#" id="askcervi-link">AskCervi</a>
+        <a href="#doctors-section" id="find-doctors-link">Find Doctors</a>
+        <a href="#health-section">Health Insights</a>
+        <a href="protection.html">Protection Plans</a>
+    </nav>
+
+    <div class="auth-btns">
+        <a href="auth.html?tab=login" class="btn-click" id="sign-in-btn">Sign In</a>
+        <a href="auth.html?tab=signup" class="btn-click" id="sign-up-btn">Sign Up</a>
+        <!-- User Profile Icon (shown when logged in) -->
+        <div class="user-profile-icon" id="user-profile-icon" style="display: none;">
+            <a href="#" class="profile-link" id="profile-link">
+                <i class="fa-solid fa-user"></i>
+            </a>
+            <div class="profile-dropdown" id="profile-dropdown">
+                <div class="profile-info" id="profile-info">
+                    <p class="profile-name" id="profile-name"></p>
+                    <p class="profile-email" id="profile-email"></p>
+                </div>
+                <div class="profile-menu">
+                    <a href="#" class="profile-menu-item">
+                        <i class="fa-solid fa-user"></i> Profile
+                    </a>
+                    <a href="#" class="profile-menu-item">
+                        <i class="fa-solid fa-cog"></i> Settings
+                    </a>
+                    <a href="#" class="profile-menu-item" id="logout-btn">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<!-- ===== HERO SECTION WITH VIDEO BACKGROUND ===== -->
+<section class="hero-video-section" id="hero">
+    <!-- Video Background -->
+    <div class="hero-video-bg">
+        <video autoplay muted loop playsinline>
+            <!-- Use healthcare/medical related video -->
+            <source src="https://cdn.pixabay.com/video/2023/04/18/161807-819739640_large.mp4" type="video/mp4">
+            <!-- Alternative videos (choose one URL):
+            https://assets.mixkit.co/videos/preview/mixkit-doctor-holding-a-digital-tablet-4326-large.mp4
+            https://assets.mixkit.co/videos/preview/mixkit-medical-animation-of-a-beating-heart-4328-large.mp4
+            https://cdn.pixabay.com/video/2023/10/24/184128-878763501_large.mp4
+            -->
+        </video>
+        <div class="hero-video-overlay"></div>
+    </div>
+
+    <div class="hero-container">
+        <!-- LEFT CONTENT -->
+        <div class="hero-left">
+            <span class="badge">AI-Powered Cervical Cancer Risk Assessment</span>
+
+            <h1>
+                CerviCare <br>
+                <span class="gradient-text">AI Health Assistant</span>
+            </h1>
+
+            <p class="hero-description">
+                India's AI-driven cervical cancer care platform.
+                Get personalized risk assessment, prevention guidance,
+                and connect with trusted gynecologists near you.
+            </p>
+
+            <div class="hero-buttons">
+                <button class="btn-hero-primary">
+                    <i class="fa-solid fa-calculator"></i>
+                    Calculate My Risk
+                </button>
+
+                <button class="btn-hero-secondary">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    Find Doctors
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT CARD -->
+        <div class="hero-right">
+            <div class="hero-risk-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <h3>Risk Assessment Preview</h3>
+                </div>
+
+                <!-- Risk Level -->
+                <div class="risk-box orange">
+                    <div class="risk-header">
+                        <span>Current Risk Level</span>
+                        <strong>24%</strong>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width:24%"></div>
+                    </div>
+                    <small>Moderate Risk – Action Recommended</small>
+                </div>
+
+                <!-- Risk Reduction -->
+                <div class="risk-box green">
+                    <div class="risk-header">
+                        <span>Potential Risk Reduction</span>
+                        <strong>12%</strong>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar green-bar" style="width:12%"></div>
+                    </div>
+                    <small>With Personalized Care Plan</small>
+                </div>
+
+                <!-- Key Factors -->
+                <div class="risk-box blue">
+                    <div class="risk-header">
+                        <span>Key Risk Factors</span>
+                    </div>
+                    <div class="risk-factors">
+                        <div class="factor">
+                            <span>Lifestyle</span>
+                            <span class="impact high">High Impact</span>
+                        </div>
+                        <div class="factor">
+                            <span>HPV Infection</span>
+                            <span class="impact medium">Medium Impact</span>
+                        </div>
+                        <div class="factor">
+                            <span>Screening History</span>
+                            <span class="impact low">Low Impact</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ===== OUR FEATURES SECTION ===== -->
+<section class="our-features" id="features">
+    <!-- Main wrapper for the whole section -->
+    <div class="features-wrapper">
+        <h2>Our Features</h2>
+        <p>
+            CerviCare provides a comprehensive platform to proactively manage your cervical health. 
+            From AI-driven risk assessments that analyze key health factors, to personalized care 
+            plans and preventive recommendations, and seamless access to trusted gynecologists.
+            Everything is designed to keep women informed, empowered, and healthy.
+        </p>
+
+        <div class="features-grid">
+            <div class="feature-box" id="risk-section-feature">
+                <i class="fa-solid fa-calculator"></i>
+                <h3>Risk Assessment</h3>
+                <p>AI-powered cervical health evaluation in minutes, analyzing key risk factors for proactive care.</p>
+                <a href="#" class="feature-btn">Start Assessment <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <div class="feature-box" id="doctors-section">
+                <i class="fa-solid fa-user-doctor"></i>
+                <h3>Find Doctors</h3>
+                <p>Easily connect with trusted gynecologists near you for personalized guidance and consultations.</p>
+                <a href="#" class="feature-btn gps-trigger">Find Nearby <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <div class="feature-box" id="health-section">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <h3>Health Insights</h3>
+                <p>Get tailored preventive tips and AI-driven insights to stay informed about your cervical well-being.</p>
+                <a href="#" class="feature-btn">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <div class="feature-box" id="protection-section">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h3>Protection Plans</h3>
+                <p>Comprehensive cervical health protection plans to ensure preventive care and early detection.</p>
+                <a href="protection.html" class="feature-btn">View Plans <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== AI BOT SECTION ===== -->
+<section class="ai-bot-section" id="ai-bot">
+    <div class="ai-bot-container">
+
+        <div class="ai-bot-card">
+
+            <!-- Left -->
+            <div class="ai-bot-left">
+                <i class="fa-solid fa-robot"></i>
+
+                <a href="#" class="unified-start-btn chatbot-trigger">START <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Right -->
+            <div class="ai-bot-right">
+                <h3>CerviBot</h3>
+                <p>
+                    Your AI-powered virtual assistant for cervical health helps women access reliable guidance with ease and confidence. Cervi Bot provides instant answers to cervical health–related questions, offers personalized risk insights, 
+                    and supports informed decision-making through AI-driven recommendations. From preventive care and screening awareness to understanding potential risk factors, the assistant delivers clear and actionable information tailored 
+                    to individual needs. Available anytime, anywhere, Cervi Bot makes proactive cervical health management simple, accessible, and empowering.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+<!-- ===== GPS DOCTOR FINDER (CerviBot Style) ===== -->
+<section class="ai-bot-section" id="gps-doctor-finder">
+    <div class="ai-bot-container">
+
+        <div class="ai-bot-card">
+
+            <!-- Left Side -->
+            <div class="ai-bot-left">
+                <i class="fa-solid fa-location-dot ai-big-icon"></i>
+
+                <a href="#" class="unified-start-btn gps-trigger">START <i class="fa-solid fa-arrow-right"></i></a>
+
+            </div>
+
+            <!-- Right Side -->
+            <div class="ai-bot-right">
+                <h2 class="ai-title">GPS Doctor Finder</h2>
+                <p>
+                    GPS Doctor Finder helps users quickly locate trusted gynecologists
+                    and healthcare specialists nearby using real-time location
+                    intelligence. The feature enables seamless discovery of verified
+                    doctors based on proximity, availability, and specialization.
+                    By simplifying access to medical professionals, GPS Doctor Finder
+                    ensures timely consultations, informed healthcare decisions, and
+                    improved access to reliable cervical care services anytime,
+                    anywhere.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+<!-- ===== VACCINATION SCHEDULE SECTION ===== -->
+<!-- ===== VACCINATION SCHEDULE SECTION ===== -->
+<section class="vaccination-section">
+    <div class="vaccination-card">
+        <!-- LEFT SIDE -->
+        <div class="vaccination-left">
+            <i class="fa-solid fa-syringe injection-icon"></i>
+            <a href="#" class="unified-start-btn">START <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="vaccination-right">
+            <h3>Vaccination Schedule</h3>
+            <p>
+                Keep track of your cervical health vaccinations with a clear and easy-to-follow schedule designed for your well-being. Stay informed about upcoming doses and recommended timelines for maximum effectiveness, while receiving guidance on preventive care measures that support long-term cervical health. Our organized schedule helps you avoid missed vaccinations and unnecessary delays, ensuring timely protection. Stay proactive, confident, and assured with a system that prioritizes your health and provides lasting peace of mind.
+        </div>
+    </div>
+</section>
+<!-- ===== TWO ASSESSMENT SECTION ===== -->
+<section class="two-assessment-section" id="two-assessment">
+    <div class="two-assessment-container">
+
+        <div class="two-assessment-card">
+
+            <!-- LEFT SIDE -->
+            <div class="two-assessment-left">
+                <i class="fa-solid fa-clipboard-list two-assessment-icon"></i>
+
+                <a href="#" class="unified-start-btn">START <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="two-assessment-right">
+                <h3>Two Step Assessment </h3>
+                <p>
+                    The Two Assessment Section combines data-based analysis and symptom-focused evaluation to give a complete understanding of cervical health risks. It highlights potential concerns from medical history and lifestyle while capturing early warning signs. This approach provides actionable insights, personalized recommendations, and guidance for follow-up care. By making information clear and user-friendly, it empowers individuals to take control of their cervical health and preventive care.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+<!-- ===== CERVICARE HIGHLIGHTS SECTION ===== -->
+<section class="cervicare-highlights">
+    <div class="highlights-container">
+        <!-- Main Content -->
+        <div class="highlights-main">
+            <h2>Experience CerviCare India</h2>
+            <p>
+                India's first AI-powered cervical health platform. Built with cutting-edge technology 
+                and medical expertise to revolutionize women's healthcare accessibility with accurate 
+                risk assessment and personalized guidance.
+            </p>
+            
+            <div class="highlight-buttons">
+                <a href="#risk-section-feature" class="highlight-btn">
+                    Try Risk Assessment
+                </a>
+                <a href="#ai-bot" class="highlight-btn secondary">
+                    Chat with AI
+                </a>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="highlights-stats">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-stopwatch"></i>
+        </div>
+        <h3>2 mins</h3>
+        <p>Quick Assessment</p>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-bullseye"></i>
+        </div>
+        <h3>99.24%</h3>
+        <p>Accuracy Rate</p>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+        <h3>AI Powered</h3>
+        <p>Smart Technology</p>
+    </div>
+
+</section>
+
+<!-- ===== FOOTER SECTION ===== -->
+<footer class="cervicare-footer">
+    <div class="footer-container">
+        <!-- Top Section -->
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>CerviCare</span>
+                </div>
+                <h3>All for Early Cervical Cancer Detection</h3>
+                <p class="footer-tagline">
+                    Empowering women's healthcare with intelligent AI technology for a safer, healthier tomorrow. Stay safe and stay healthy.
+                </p>
+            </div>
+        </div>
+
+        <!-- Links Section -->
+        <div class="footer-links-grid">
+            <!-- Quick Links -->
+            <div class="footer-column">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#risk-section-feature">Assessment</a></li>
+                    <li><a href="#ai-bot">CerviBot</a></li>
+                    <li><a href="protection.html">Protection</a></li>
+                    <li><a href="#doctors-section">Find Doctor</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources -->
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Profile</a></li>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Terms of Use</a></li>
+                </ul>
+            </div>
+
+            <!-- Follow Us -->
+            <div class="footer-column">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" aria-label="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+                
+                <div class="newsletter">
+                    <h5>Subscribe to Newsletter</h5>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Enter your email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                <p>&copy; 2025 <strong>CerviCare</strong>. All rights reserved.</p>
+                <p class="disclaimer">
+                    Note: CerviCare is an AI-powered assistant for guidance only. 
+                    Always consult a healthcare professional for medical advice.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ===== CHATBOT MODAL ===== -->
+<div id="chatbot-modal" class="modal">
+    <div class="modal-content chatbot-modal-content">
+        <div class="modal-header">
+            <h2>AskCervi - AI Chatbot</h2>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <iframe id="chatbot-iframe" src="https://cervibot.onrender.com/" frameborder="0" allow="microphone 'none'; camera 'none'; autoplay 'none';"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- ===== GPS MAP MODAL ===== -->
+<div id="gps-modal" class="modal">
+    <div class="modal-content gps-modal-content">
+        <div class="modal-header">
+            <h2>Find Nearby Hospitals & Doctors</h2>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="map-container">
+                <div id="map"></div>
+                <div id="map-controls">
+                    <button id="locate-me-btn" class="map-control-btn">
+                        <i class="fa-solid fa-location-crosshairs"></i> Get My Location
+                    </button>
+                    <button id="search-hospitals-btn" class="map-control-btn">
+                        <i class="fa-solid fa-hospital"></i> Search Hospitals on Google Maps
+                    </button>
+                </div>
+                <div id="hospital-results">
+                    <p style="text-align: center; padding: 20px; color: #6b7280;">
+                        Click "Get My Location" to find your position on the map, then search for nearby hospitals.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet JavaScript (OpenStreetMap - Free, no API key needed) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="script.js"></script>
+</body>
+</html>

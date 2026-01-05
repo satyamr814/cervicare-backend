@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Sign Up - CerviCare</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Montserrat Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="auth.css">
+    
+    <!-- Comprehensive Audio Blocker - Must load first to block all audio -->
+    <script>
+        // IMMEDIATE BLOCK - Run before anything else
+        (function() {
+            'use strict';
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const originalSpeak = window.speechSynthesis.speak;
+                window.speechSynthesis.speak = function() {
+                    window.speechSynthesis.cancel();
+                    return false;
+                };
+                setInterval(function() {
+                    window.speechSynthesis.cancel();
+                }, 5);
+            }
+        })();
+    </script>
+    <script src="audio-blocker.js"></script>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="navbar">
+    <div class="logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>CerviCare</span>
+    </div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="index.html#risk-section-feature">Assessment</a>
+        <a href="index.html#doctors-section">Find Doctors</a>
+        <a href="protection.html">Protection Plans</a>
+    </nav>
+
+    <div class="auth-btns">
+        <a href="index.html" class="btn-click">Back to Home</a>
+    </div>
+</header>
+
+<!-- ===== AUTH CONTAINER ===== -->
+<div class="auth-container">
+    <div class="auth-wrapper">
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="login">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+            <button class="auth-tab" data-tab="signup">
+                <i class="fa-solid fa-user-plus"></i> Sign Up
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="auth-form active" id="login-form">
+            <div class="auth-header">
+                <h2>Welcome Back</h2>
+                <p>Login to your CerviCare account</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="login-email">
+                        <i class="fa-solid fa-envelope"></i> Email Address
+                    </label>
+                    <input type="email" id="login-email" name="email" required 
+                           placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">
+                        <i class="fa-solid fa-lock"></i> Password
+                    </label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="login-password" name="password" required 
+                               placeholder="Enter your password">
+                        <button type="button" class="toggle-password" data-target="login-password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login
+                </button>
+
+                <div id="login-error" class="error-message"></div>
+            </form>
+        </div>
+
+        <!-- Sign Up / Create Account Form -->
+        <div class="auth-form" id="signup-form">
+            <div class="auth-header">
+                <h2>Create Your Account</h2>
+                <p>Join CerviCare to access personalized health services</p>
+            </div>
+
+            <form id="signupForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">
+                            <i class="fa-solid fa-user"></i> First Name
+                        </label>
+                        <input type="text" id="first-name" name="firstName" required 
+                               placeholder="Enter your first name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last-name">
+                            <i class="fa-solid fa-user"></i> Last Name
+                        </label>
+                        <input type="text" id="last-name" name="lastName" required 
+                               placeholder="Enter your last name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email">
+                        <i class="fa-solid fa-envelope"></i> Email Address
+                    </label>
+                    <input type="email" id="signup-email" name="email" required 
+                           placeholder="Enter your email">
+                    <small class="form-hint">We'll never share your email with anyone else</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">
+                        <i class="fa-solid fa-lock"></i> Password
+                    </label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="signup-password" name="password" required 
+                               placeholder="Create a strong password">
+                        <button type="button" class="toggle-password" data-target="signup-password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-requirements">
+                            <p class="req-title">Password must contain:</p>
+                            <ul>
+                                <li class="req-item" id="req-length">
+                                    <i class="fa-solid fa-circle"></i> At least 8 characters
+                                </li>
+                                <li class="req-item" id="req-uppercase">
+                                    <i class="fa-solid fa-circle"></i> One uppercase letter
+                                </li>
+                                <li class="req-item" id="req-lowercase">
+                                    <i class="fa-solid fa-circle"></i> One lowercase letter
+                                </li>
+                                <li class="req-item" id="req-number">
+                                    <i class="fa-solid fa-circle"></i> One number
+                                </li>
+                                <li class="req-item" id="req-special">
+                                    <i class="fa-solid fa-circle"></i> One special character (!@#$%^&*)
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="strength-meter">
+                            <div class="strength-bar" id="strength-bar"></div>
+                        </div>
+                        <span class="strength-text" id="strength-text">Password strength</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">
+                        <i class="fa-solid fa-lock"></i> Confirm Password
+                    </label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="confirm-password" name="confirmPassword" required 
+                               placeholder="Confirm your password">
+                        <button type="button" class="toggle-password" data-target="confirm-password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                    <div id="password-match" class="match-indicator"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="terms" required>
+                        <span>I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="auth-submit-btn">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
+
+                <div id="signup-error" class="error-message"></div>
+                <div id="signup-success" class="success-message"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="auth.js"></script>
+</body>
+</html>
+
