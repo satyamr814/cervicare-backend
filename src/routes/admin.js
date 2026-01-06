@@ -29,12 +29,14 @@ const protectionPlanContentSchema = Joi.object({
 // Diet Content Management
 router.post('/diet-content', validateRequest(dietContentSchema), AdminController.createDietContent);
 router.get('/diet-content', AdminController.getDietContent);
-// Note: Update and delete endpoints would require additional model methods
+router.put('/diet-content/:id', validateRequest(dietContentSchema), AdminController.updateDietContent);
+router.delete('/diet-content/:id', AdminController.deleteDietContent);
 
 // Protection Plan Content Management
 router.post('/protection-plan', validateRequest(protectionPlanContentSchema), AdminController.createProtectionPlanContent);
 router.get('/protection-plan', AdminController.getProtectionPlanContent);
-// Note: Update and delete endpoints would require additional model methods
+router.put('/protection-plan/:id', validateRequest(protectionPlanContentSchema), AdminController.updateProtectionPlanContent);
+router.delete('/protection-plan/:id', AdminController.deleteProtectionPlanContent);
 
 // Audit Logs
 router.get('/audit-logs', AdminController.getAuditLogs);

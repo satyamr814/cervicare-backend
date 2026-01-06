@@ -121,7 +121,10 @@ class ProfileManager {
             }
             
             const userData = await userResponse.json();
-            this.currentUser = userData.data.user;
+            this.currentUser = userData?.data?.user;
+            if (this.currentUser) {
+                this.currentUser.profile = userData?.data?.profile || null;
+            }
             
             // Load avatar data
             await this.loadAvatarData();

@@ -1,12 +1,12 @@
 const User = require('../models/User');
 const { generateToken } = require('../config/jwt');
-const automationService = require('../services/automationService');
-const sheetsSyncService = require('../services/sheetsSyncService');
+const webhookService = require('../services/webhookService');
+const googleSheetsService = require('../services/googleSheetsService');
 
 class AuthController {
   static async signup(req, res) {
     try {
-      const { email, password } = req.body;
+      const { email, password, phone, city } = req.body;
 
       // Check if user already exists
       const existingUser = await User.findByEmail(email);
@@ -19,19 +19,18 @@ class AuthController {
 
       // Create new user
       const user = await User.create(email, password);
-      
+
       // Generate JWT token
       const token = generateToken({ userId: user.id, email: user.email });
 
-      // Trigger automation webhook for new user signup
-      await automationService.triggerUserSignup(user.id, user.email);
+      // Trigger automation webhook for new user signup (non-blocking)
+      webhookService.triggerUserSignup(user.id, user.email).catch(console.error);
+
+      // Log action (non-blocking)
+      googleSheetsService.syncUserAction(user.id, 'user_signup', 'website').catch(console.error);
 
       // Sync to Google Sheets (non-blocking)
-      await sheetsSyncService.syncUserSignup({
-        user_id: user.id,
-        email: user.email,
-        created_at: user.created_at
-      });
+      googleSheetsService.syncUserSignup(user.id, user.email, phone, city).catch(console.error);
 
       res.status(201).json({
         success: true,
@@ -47,6 +46,15 @@ class AuthController {
       });
     } catch (error) {
       console.error('Signup error:', error);
+
+      if (error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
+        return res.status(503).json({
+          success: false,
+          message: 'Database is not reachable. Start PostgreSQL and set DATABASE_URL, then run database/schema.sql.',
+          code: 'DB_UNAVAILABLE'
+        });
+      }
+
       res.status(500).json({
         success: false,
         message: 'Internal server error during signup'
@@ -93,6 +101,15 @@ class AuthController {
       });
     } catch (error) {
       console.error('Login error:', error);
+
+      if (error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
+        return res.status(503).json({
+          success: false,
+          message: 'Database is not reachable. Start PostgreSQL and set DATABASE_URL, then run database/schema.sql.',
+          code: 'DB_UNAVAILABLE'
+        });
+      }
+
       res.status(500).json({
         success: false,
         message: 'Internal server error during login'

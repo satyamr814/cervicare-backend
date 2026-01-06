@@ -1,11 +1,11 @@
 const pool = require('../config/database');
 
 class RoleMiddleware {
-  static async requireRole(requiredRole) {
+  static requireRole(requiredRole) {
     return async (req, res, next) => {
       try {
         // Get user ID from JWT token (set by auth middleware)
-        const userId = req.user?.userId;
+        const userId = req.user?.userId || req.user?.id;
         
         if (!userId) {
           return res.status(401).json({

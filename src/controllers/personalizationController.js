@@ -8,7 +8,7 @@ class PersonalizationController {
   static async getDietPlan(req, res) {
     try {
       const userId = req.user.id;
-      
+
       // Get user profile
       const profile = await UserProfile.findByUserId(userId);
       if (!profile) {
@@ -43,11 +43,11 @@ class PersonalizationController {
         finalRecommendations = dietTypeResults.slice(0, 5); // Limit to 5 items
       }
 
-      // Trigger webhook for diet plan generation
-      await webhookService.triggerDietPlanGenerated(userId, profile.diet_type, finalRecommendations.length);
+      // Trigger webhook for diet plan generation (non-blocking)
+      webhookService.triggerDietPlanGenerated(userId, profile.diet_type, finalRecommendations.length).catch(console.error);
 
-      // Sync to Google Sheets
-      await googleSheetsService.syncDietPlan(userId, req.user.email, profile, finalRecommendations);
+      // Log action (non-blocking)
+      googleSheetsService.syncUserAction(userId, 'diet_plan_viewed', 'website').catch(console.error);
 
       res.json({
         success: true,
@@ -74,7 +74,7 @@ class PersonalizationController {
   static async getProtectionPlan(req, res) {
     try {
       const userId = req.user.id;
-      
+
       // Get user profile
       const profile = await UserProfile.findByUserId(userId);
       if (!profile) {
@@ -87,7 +87,7 @@ class PersonalizationController {
       // Rule-based risk band assignment (non-medical, lifestyle-based only)
       // This is NOT medical diagnosis - just lifestyle risk categorization
       let riskBand = 'low';
-      
+
       if (profile.age >= 40) {
         riskBand = 'moderate';
       }
@@ -105,12 +105,11 @@ class PersonalizationController {
         screening: protectionContent.filter(item => item.section === 'screening')
       };
 
-      // Trigger webhook for protection plan access
-      await webhookService.triggerProtectionPlanAccessed(userId, riskBand);
+      // Trigger webhook for protection plan access (non-blocking)
+      webhookService.triggerProtectionPlanAccessed(userId, riskBand).catch(console.error);
 
-      // Sync to Google Sheets
-      const profileWithRiskBand = { ...profile, assigned_risk_band: riskBand };
-      await googleSheetsService.syncProtectionPlan(userId, req.user.email, profileWithRiskBand, organizedContent);
+      // Log action (non-blocking)
+      googleSheetsService.syncUserAction(userId, 'protection_plan_viewed', 'website').catch(console.error);
 
       res.json({
         success: true,

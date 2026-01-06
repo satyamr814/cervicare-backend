@@ -221,13 +221,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 if (response.ok && data.success) {
-                    // Store user session
-                    if (data.user) {
-                        localStorage.setItem('user', JSON.stringify(data.user));
+                    const user = data?.data?.user || data?.user;
+                    const token = data?.data?.token || data?.token;
+
+                    if (token) {
+                        localStorage.setItem('token', token);
+                    }
+
+                    if (user) {
+                        localStorage.setItem('user', JSON.stringify(user));
                         localStorage.setItem('isLoggedIn', 'true');
                         
-                        // Redirect to home page
-                        window.location.href = 'index.html';
+                        // Redirect to profile page
+                        window.location.href = 'profile.html';
                     } else {
                         showError(errorDiv, 'Login successful but user data not received. Please try again.');
                     }
@@ -340,9 +346,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (response.ok && data.success) {
                     // Auto-login after successful signup
-                    if (data.user) {
+                    const user = data?.data?.user || data?.user;
+                    const token = data?.data?.token || data?.token;
+
+                    if (token) {
+                        localStorage.setItem('token', token);
+                    }
+
+                    if (user) {
                         // Store user session
-                        localStorage.setItem('user', JSON.stringify(data.user));
+                        localStorage.setItem('user', JSON.stringify(user));
                         localStorage.setItem('isLoggedIn', 'true');
                         
                         showSuccess(successDiv, 'Account created successfully! Redirecting...');
@@ -363,9 +376,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         if (passwordMatch) passwordMatch.className = 'match-indicator';
                         
-                        // Redirect to home page after 1.5 seconds
+                        // Redirect to profile page after 1.5 seconds
                         setTimeout(() => {
-                            window.location.href = 'index.html';
+                            window.location.href = 'profile.html';
                         }, 1500);
                     } else {
                         // Fallback: switch to login tab if user data not received

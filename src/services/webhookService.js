@@ -22,7 +22,7 @@ class WebhookService {
         WHERE up.user_id = $1
       `;
       const profileResult = await pool.query(profileQuery, [userId]);
-      
+
       if (profileResult.rows.length === 0) {
         console.warn(`⚠️ No profile found for user ${userId}. Webhook not triggered.`);
         return false;
@@ -39,9 +39,12 @@ class WebhookService {
       // Prepare webhook payload
       const payload = {
         user_id: userId,
-        email: profile.email,
-        phone: profile.phone,
+        phone: profile.phone || 'N/A',
         action_type: actionType,
+        consent_flags: {
+          whatsapp: profile.whatsapp_consent || false,
+          marketing: profile.marketing_consent || false
+        },
         timestamp: new Date().toISOString(),
         ...additionalData
       };
@@ -63,10 +66,10 @@ class WebhookService {
 
     } catch (error) {
       console.error(`❌ Failed to trigger N8N webhook for user ${userId}, action: ${actionType}:`, error.message);
-      
+
       // Log failed webhook
       await this.logWebhook(userId, actionType, {}, null, null, error.message);
-      
+
       return false;
     }
   }
@@ -76,15 +79,15 @@ class WebhookService {
       case 'profile_completed':
       case 'protection_plan_accessed':
         return profile.whatsapp_consent === true;
-      
+
       case 'marketing_update':
       case 'newsletter_subscription':
         return profile.marketing_consent === true;
-      
+
       case 'user_signup':
         // Signup events don't require consent (welcome messages)
         return true;
-      
+
       default:
         // Default to requiring WhatsApp consent
         return profile.whatsapp_consent === true;
@@ -98,12 +101,12 @@ class WebhookService {
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id
       `;
-      
+
       await pool.query(query, [
-        userId, 
-        webhookType, 
-        JSON.stringify(payload), 
-        responseStatus, 
+        userId,
+        webhookType,
+        JSON.stringify(payload),
+        responseStatus,
         responseBody ? JSON.stringify(responseBody) : null
       ]);
     } catch (error) {
@@ -119,7 +122,7 @@ class WebhookService {
         ORDER BY created_at DESC 
         LIMIT ${userId ? '$2' : '$1'}
       `;
-      
+
       const params = userId ? [userId, limit] : [limit];
       const result = await pool.query(query, params);
       return result.rows;

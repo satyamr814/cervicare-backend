@@ -1,27 +1,61 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const pool = require('../config/database');
+const fs = require('fs');
 
 class GoogleSheetsService {
   constructor() {
     this.doc = null;
     this.isInitialized = false;
+    this.syncQueue = [];
+    this.isProcessing = false;
+    this.retryCount = 3;
+    this.retryDelay = 1000;
+  }
+
+  loadCredentials() {
+    if (process.env.GOOGLE_SHEETS_CREDENTIALS) {
+      return JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS);
+    }
+
+    const credsPath = process.env.GOOGLE_SHEETS_CREDENTIALS_PATH ||
+      process.env.GOOGLE_SHEETS_CREDENTIALS_FILE ||
+      process.env.GOOGLE_APPLICATION_CREDENTIALS;
+
+    if (credsPath) {
+      try {
+        const raw = fs.readFileSync(credsPath, 'utf8');
+        return JSON.parse(raw);
+      } catch (error) {
+        console.error('❌ Failed to read credentials file:', error.message);
+        return null;
+      }
+    }
+    return null;
   }
 
   async initialize() {
     try {
-      if (!process.env.GOOGLE_SHEETS_CREDENTIALS || !process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
+      if (!process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
+        console.warn('⚠️ Google Sheets spreadsheet ID not configured. Sync disabled.');
+        return false;
+      }
+
+      const credentials = this.loadCredentials();
+      if (!credentials) {
         console.warn('⚠️ Google Sheets credentials not configured. Sync disabled.');
         return false;
       }
 
-      const credentials = JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS);
       this.doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SPREADSHEET_ID);
-      
       await this.doc.useServiceAccountAuth(credentials);
       await this.doc.loadInfo();
-      
+
       this.isInitialized = true;
       console.log('✅ Google Sheets service initialized');
+
+      // Process any queued items
+      this.processQueue();
+
       return true;
     } catch (error) {
       console.error('❌ Failed to initialize Google Sheets service:', error);
@@ -29,19 +63,46 @@ class GoogleSheetsService {
     }
   }
 
+  async queueSync(methodName, args) {
+    this.syncQueue.push({ methodName, args, timestamp: new Date().toISOString() });
+    console.log(`📝 Queued Google Sheets sync: ${methodName}`);
+
+    // Attempt processing if initialized
+    if (this.isInitialized) {
+      this.processQueue();
+    }
+  }
+
+  async processQueue() {
+    if (this.isProcessing || this.syncQueue.length === 0 || !this.isInitialized) return;
+
+    this.isProcessing = true;
+    while (this.syncQueue.length > 0) {
+      const { methodName, args } = this.syncQueue[0];
+      try {
+        await this[methodName](...args, true); // true indicates it's from queue/internal
+        this.syncQueue.shift();
+      } catch (error) {
+        console.error(`❌ Failed to process queued sync ${methodName}:`, error);
+        break; // Stop processing queue on failure
+      }
+    }
+    this.isProcessing = false;
+  }
+
   async ensureSheet(sheetTitle) {
     if (!this.isInitialized) return null;
 
     try {
       let sheet = this.doc.sheetsByTitle[sheetTitle];
-      
+
       if (!sheet) {
         sheet = await this.doc.addSheet({
           title: sheetTitle,
           headerValues: this.getHeaderValues(sheetTitle)
         });
       }
-      
+
       return sheet;
     } catch (error) {
       console.error(`❌ Failed to ensure sheet ${sheetTitle}:`, error);
@@ -51,62 +112,61 @@ class GoogleSheetsService {
 
   getHeaderValues(sheetTitle) {
     const headers = {
+      'users': ['user_id', 'email', 'phone', 'city', 'created_at'],
+      'profiles': ['user_id', 'diet_type', 'budget_level', 'lifestyle', 'profile_image_url', 'updated_at'],
+      'actions': ['user_id', 'action_type', 'source', 'timestamp'],
       'User Logins': ['Timestamp', 'User ID', 'Email', 'Signup Date', 'IP Address', 'User Agent', 'Profile Completed', 'Avatar Type', 'City', 'Age', 'Gender', 'Diet Type', 'Budget Level', 'Lifestyle'],
       'Bot Data': ['Timestamp', 'User ID', 'Email', 'Phone', 'Bot Message', 'Bot Response', 'Intent', 'Action Taken', 'WhatsApp Sent', 'Session ID', 'Message Type'],
       'User Analytics': ['Timestamp', 'User ID', 'Email', 'Event Type', 'Event Data', 'Session ID', 'IP Address', 'User Agent'],
-      'Content Analytics': ['Timestamp', 'Content Type', 'Content ID', 'Title', 'Views', 'Unique Users', 'Conversion Rate', 'Avg Rating'],
-      'System Metrics': ['Timestamp', 'Metric Name', 'Value', 'Unit', 'Metadata'],
-      'Security Logs': ['Timestamp', 'User ID', 'Event Type', 'IP Address', 'User Agent', 'Details', 'Severity'],
-      'Premium Usage': ['Timestamp', 'User ID', 'Feature Used', 'Usage Count', 'Plan Type', 'Subscription Date'],
-      'Avatar History': ['Timestamp', 'User ID', 'Avatar Type', 'Generation Method', 'Template Used', 'Processing Time']
+      'Content Analytics': ['Timestamp', 'Content Type', 'Content ID', 'Title', 'Views', 'Unique Users', 'Conversion Rate', 'Avg Rating']
     };
-    
+
     return headers[sheetTitle] || ['Timestamp', 'User ID', 'Data'];
   }
 
-  async syncUserSignup(userId, email) {
-    if (!this.isInitialized) return false;
+  async syncUserSignup(userId, email, phone = 'N/A', city = 'N/A', fromQueue = false) {
+    if (!this.isInitialized && !fromQueue) {
+      this.queueSync('syncUserSignup', [userId, email, phone, city]);
+      return false;
+    }
 
     try {
-      const sheet = await this.ensureSheet('User Signups');
+      const sheet = await this.ensureSheet('users');
       if (!sheet) return false;
 
       await sheet.addRow({
-        'Timestamp': new Date().toISOString(),
-        'User ID': userId,
-        'Email': email,
-        'Signup Date': new Date().toISOString()
+        'user_id': userId,
+        'email': email,
+        'phone': phone,
+        'city': city,
+        'created_at': new Date().toISOString()
       });
 
-      await this.logSyncEvent('user_signup', userId, { email });
+      await this.logSyncEvent('user_signup', userId, { email, phone, city });
       return true;
     } catch (error) {
       console.error('❌ Failed to sync user signup:', error);
       await this.logSyncEvent('user_signup', userId, { email, error: error.message }, 'failed');
-      return false;
+      throw error; // Rethrow to let queue/caller handle it
     }
   }
 
-  async syncProfileUpdate(userId, profileData) {
-    if (!this.isInitialized) return false;
+  async syncProfileUpdate(userId, profileData, fromQueue = false) {
+    if (!this.isInitialized && !fromQueue) {
+      this.queueSync('syncProfileUpdate', [userId, profileData]);
+      return false;
+    }
 
     try {
-      const sheet = await this.ensureSheet('Profile Updates');
+      const sheet = await this.ensureSheet('profiles');
       if (!sheet) return false;
 
       await sheet.addRow({
-        'Timestamp': new Date().toISOString(),
-        'User ID': userId,
-        'Email': profileData.email || 'N/A',
-        'Age': profileData.age || 'N/A',
-        'Gender': profileData.gender || 'N/A',
-        'City': profileData.city || 'N/A',
-        'Diet Type': profileData.diet_type || 'N/A',
-        'Budget Level': profileData.budget_level || 'N/A',
-        'Lifestyle': profileData.lifestyle || 'N/A',
-        'WhatsApp Consent': profileData.whatsapp_consent || false,
-        'Marketing Consent': profileData.marketing_consent || false,
-        'Phone': profileData.phone || 'N/A'
+        'user_id': userId,
+        'diet_type': profileData.diet_type || 'N/A',
+        'budget_level': profileData.budget_level || 'N/A',
+        'lifestyle': profileData.lifestyle || 'N/A',
+        'updated_at': new Date().toISOString()
       });
 
       await this.logSyncEvent('profile_update', userId, profileData);
@@ -114,7 +174,32 @@ class GoogleSheetsService {
     } catch (error) {
       console.error('❌ Failed to sync profile update:', error);
       await this.logSyncEvent('profile_update', userId, profileData, 'failed', error.message);
+      throw error;
+    }
+  }
+
+  async syncUserAction(userId, actionType, source = 'website', metadata = {}, fromQueue = false) {
+    if (!this.isInitialized && !fromQueue) {
+      this.queueSync('syncUserAction', [userId, actionType, source, metadata]);
       return false;
+    }
+
+    try {
+      const sheet = await this.ensureSheet('actions');
+      if (!sheet) return false;
+
+      await sheet.addRow({
+        'user_id': userId,
+        'action_type': actionType,
+        'source': source,
+        'timestamp': new Date().toISOString()
+      });
+
+      await this.logSyncEvent('user_action', userId, { actionType, source, ...metadata });
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to sync user action:', error);
+      throw error;
     }
   }
 
@@ -138,10 +223,10 @@ class GoogleSheetsService {
         'Top Recommendation': topRecommendation
       });
 
-      await this.logSyncEvent('diet_plan', userId, { 
-        email, 
-        profile, 
-        recommendationsCount: recommendations.length 
+      await this.logSyncEvent('diet_plan', userId, {
+        email,
+        profile,
+        recommendationsCount: recommendations.length
       });
       return true;
     } catch (error) {
@@ -158,7 +243,7 @@ class GoogleSheetsService {
       const sheet = await this.ensureSheet('Protection Plans');
       if (!sheet) return false;
 
-      const sections = Object.keys(protectionPlan).filter(key => 
+      const sections = Object.keys(protectionPlan).filter(key =>
         Array.isArray(protectionPlan[key]) && protectionPlan[key].length > 0
       ).join(', ');
 
@@ -172,10 +257,10 @@ class GoogleSheetsService {
         'Plan Sections': sections || 'N/A'
       });
 
-      await this.logSyncEvent('protection_plan', userId, { 
-        email, 
-        profile, 
-        sectionsCount: sections.split(', ').filter(s => s !== 'N/A').length 
+      await this.logSyncEvent('protection_plan', userId, {
+        email,
+        profile,
+        sectionsCount: sections.split(', ').filter(s => s !== 'N/A').length
       });
       return true;
     } catch (error) {
@@ -192,7 +277,7 @@ class GoogleSheetsService {
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id
       `;
-      
+
       await pool.query(query, [syncType, userId, JSON.stringify(data), status, errorMessage]);
     } catch (error) {
       console.error('❌ Failed to log sync event:', error);
@@ -207,7 +292,7 @@ class GoogleSheetsService {
         ORDER BY created_at DESC 
         LIMIT ${userId ? '$2' : '$1'}
       `;
-      
+
       const params = userId ? [userId, limit] : [limit];
       const result = await pool.query(query, params);
       return result.rows;

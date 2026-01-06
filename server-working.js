@@ -473,9 +473,9 @@ app.get('/api/users', (req, res) => {
   res.json({
     success: true,
     data: {
-      users: Array.isArray(users) ? users.map(u => ({ id: u.id, email: u.email, role: u.role, createdAt: u.createdAt })) : [],
-      profiles: Array.isArray(userProfiles) ? userProfiles : [],
-      avatars: Array.isArray(avatarData) ? avatarData : []
+      users: users.map(u => ({ id: u.id, email: u.email, role: u.role, createdAt: u.createdAt })),
+      profiles: userProfiles,
+      avatars: avatarData
     }
   });
 });

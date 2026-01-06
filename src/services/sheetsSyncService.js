@@ -1,5 +1,6 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const pool = require('../config/database');
+const fs = require('fs');
 
 class SheetsSyncService {
   constructor() {
@@ -12,14 +13,33 @@ class SheetsSyncService {
     this.retryDelay = 1000; // 1 second
   }
 
+  loadCredentials() {
+    if (process.env.GOOGLE_SHEETS_CREDENTIALS) {
+      return JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS);
+    }
+
+    const credsPath = process.env.GOOGLE_SHEETS_CREDENTIALS_FILE || process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    if (credsPath) {
+      const raw = fs.readFileSync(credsPath, 'utf8');
+      return JSON.parse(raw);
+    }
+
+    return null;
+  }
+
   async initialize() {
     try {
-      if (!process.env.GOOGLE_SHEETS_CREDENTIALS || !process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
+      if (!process.env.GOOGLE_SHEETS_SPREADSHEET_ID) {
         console.warn('⚠️ Google Sheets credentials not configured. Sync disabled.');
         return false;
       }
 
-      const credentials = JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS);
+      const credentials = this.loadCredentials();
+      if (!credentials) {
+        console.warn('⚠️ Google Sheets credentials not configured. Sync disabled.');
+        return false;
+      }
+
       this.doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SPREADSHEET_ID);
       
       await this.doc.useServiceAccountAuth(credentials);

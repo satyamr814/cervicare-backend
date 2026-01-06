@@ -28,14 +28,6 @@ class SecurityMiddleware {
       keyGenerator: (req) => {
         return req.ip || req.connection.remoteAddress;
       },
-      onLimitReached: (req, res, options) => {
-        console.warn(`🚨 Rate limit exceeded for IP: ${req.ip}, endpoint: ${req.path}`);
-        
-        // Log to database for security monitoring
-        SecurityMiddleware.logRateLimitEvent(req.ip, req.path, true).catch(error => {
-          console.error('Failed to log rate limit event:', error);
-        });
-      },
       handler: async (req, res) => {
         // Log rate limit violation
         await SecurityMiddleware.logRateLimitEvent(req.ip, req.path, true);
@@ -80,12 +72,14 @@ class SecurityMiddleware {
 
   // Enhanced security headers
   static securityHeaders() {
+    const isDev = process.env.NODE_ENV !== 'production';
+
     return helmet({
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          scriptSrc: ["'self'"],
+          scriptSrc: isDev ? ["'self'", "'unsafe-inline'"] : ["'self'"],
           imgSrc: ["'self'", "data:", "https:"],
           connectSrc: ["'self'"],
           fontSrc: ["'self'"],

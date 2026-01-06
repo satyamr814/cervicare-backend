@@ -13,11 +13,11 @@ class AdminController {
 
       // Log the action
       await ContentAuditLog.create(
-        adminId, 
-        'create', 
-        'diet_content', 
-        content.id, 
-        null, 
+        adminId,
+        'create',
+        'diet_content',
+        content.id,
+        null,
         content
       );
 
@@ -90,11 +90,11 @@ class AdminController {
 
       // Log the action
       await ContentAuditLog.create(
-        adminId, 
-        'update', 
-        'diet_content', 
-        id, 
-        existingContent, 
+        adminId,
+        'update',
+        'diet_content',
+        id,
+        existingContent,
         updatedContent
       );
 
@@ -131,11 +131,11 @@ class AdminController {
 
       // Log the action
       await ContentAuditLog.create(
-        adminId, 
-        'delete', 
-        'diet_content', 
-        id, 
-        existingContent, 
+        adminId,
+        'delete',
+        'diet_content',
+        id,
+        existingContent,
         null
       );
 
@@ -162,11 +162,11 @@ class AdminController {
 
       // Log the action
       await ContentAuditLog.create(
-        adminId, 
-        'create', 
-        'protection_plan_content', 
-        content.id, 
-        null, 
+        adminId,
+        'create',
+        'protection_plan_content',
+        content.id,
+        null,
         content
       );
 
@@ -215,6 +215,91 @@ class AdminController {
       res.status(500).json({
         success: false,
         message: 'Internal server error while fetching protection plan content'
+      });
+    }
+  }
+
+  static async updateProtectionPlanContent(req, res) {
+    try {
+      const { id } = req.params;
+      const contentData = req.body;
+      const adminId = req.admin?.userId || 'system';
+
+      // Get existing content for audit
+      const existingContent = await ProtectionPlanContent.findById(id);
+      if (!existingContent) {
+        return res.status(404).json({
+          success: false,
+          message: 'Protection plan content not found'
+        });
+      }
+
+      // Update content
+      const updatedContent = await ProtectionPlanContent.update(id, {
+        ...contentData,
+        updated_by: adminId
+      });
+
+      // Log the action
+      await ContentAuditLog.create(
+        adminId,
+        'update',
+        'protection_plan_content',
+        id,
+        existingContent,
+        updatedContent
+      );
+
+      res.json({
+        success: true,
+        message: 'Protection plan content updated successfully',
+        data: updatedContent
+      });
+    } catch (error) {
+      console.error('Update protection plan content error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error while updating protection plan content'
+      });
+    }
+  }
+
+  static async deleteProtectionPlanContent(req, res) {
+    try {
+      const { id } = req.params;
+      const adminId = req.admin?.userId || 'system';
+
+      // Get existing content for audit
+      const existingContent = await ProtectionPlanContent.findById(id);
+      if (!existingContent) {
+        return res.status(404).json({
+          success: false,
+          message: 'Protection plan content not found'
+        });
+      }
+
+      // Delete content (soft delete)
+      await ProtectionPlanContent.delete(id);
+
+      // Log the action
+      await ContentAuditLog.create(
+        adminId,
+        'delete',
+        'protection_plan_content',
+        id,
+        existingContent,
+        null
+      );
+
+      res.json({
+        success: true,
+        message: 'Protection plan content deleted successfully'
+      });
+    } catch (error) {
+      console.error('Delete protection plan content error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error while deleting protection plan content'
       });
     }
   }

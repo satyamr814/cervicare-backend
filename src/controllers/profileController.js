@@ -5,7 +5,7 @@ const googleSheetsService = require('../services/googleSheetsService');
 class ProfileController {
   static async getProfile(req, res) {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.userId || req.user?.id;
       const profile = await UserProfile.findByUserId(userId);
 
       if (!profile) {
@@ -17,10 +17,22 @@ class ProfileController {
 
       res.json({
         success: true,
-        data: profile
+        data: {
+          user: req.user,
+          profile
+        }
       });
     } catch (error) {
       console.error('Get profile error:', error);
+
+      if (error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
+        return res.status(503).json({
+          success: false,
+          message: 'Database is not reachable. Start PostgreSQL and set DATABASE_URL, then run database/schema.sql.',
+          code: 'DB_UNAVAILABLE'
+        });
+      }
+
       res.status(500).json({
         success: false,
         message: 'Internal server error while fetching profile'
@@ -30,7 +42,7 @@ class ProfileController {
 
   static async createOrUpdateProfile(req, res) {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.userId || req.user?.id;
       const profileData = req.body;
 
       const profile = await UserProfile.upsert(userId, profileData);
@@ -38,21 +50,35 @@ class ProfileController {
       // Add user email to profile data for services
       const profileWithEmail = { ...profile, email: req.user.email };
 
-      // Trigger webhook if profile is completed and user has consent
-      if (profileData.whatsapp_consent) {
-        await webhookService.triggerProfileCompleted(userId);
-      }
+      // Log action (non-blocking)
+      googleSheetsService.syncUserAction(userId, 'profile_updated', 'website').catch(console.error);
 
-      // Sync to Google Sheets
-      await googleSheetsService.syncProfileUpdate(userId, profileWithEmail);
+      // Trigger webhook if user has consent (consent check is inside the service)
+      // Pass the updated profile data to the webhook service
+      webhookService.triggerProfileCompleted(userId, profile.phone, profile).catch(console.error);
+
+      // Sync to Google Sheets with full profile data
+      googleSheetsService.syncProfileUpdate(userId, profile).catch(console.error);
 
       res.json({
         success: true,
         message: 'Profile saved successfully',
-        data: profile
+        data: {
+          user: req.user,
+          profile
+        }
       });
     } catch (error) {
       console.error('Save profile error:', error);
+
+      if (error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
+        return res.status(503).json({
+          success: false,
+          message: 'Database is not reachable. Start PostgreSQL and set DATABASE_URL, then run database/schema.sql.',
+          code: 'DB_UNAVAILABLE'
+        });
+      }
+
       res.status(500).json({
         success: false,
         message: 'Internal server error while saving profile'

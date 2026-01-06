@@ -2,7 +2,11 @@ const Joi = require('joi');
 
 const validateRequest = (schema) => {
   return (req, res, next) => {
-    const { error } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.body, {
+      abortEarly: false,
+      allowUnknown: true,
+      stripUnknown: true
+    });
     if (error) {
       return res.status(400).json({
         success: false,
@@ -10,6 +14,8 @@ const validateRequest = (schema) => {
         details: error.details.map(detail => detail.message)
       });
     }
+
+    req.body = value;
     next();
   };
 };
@@ -72,6 +78,9 @@ const profileSchema = Joi.object({
   }),
   phone: Joi.string().pattern(/^[+]?[\d\s\-\(\)]+$/).optional().messages({
     'string.pattern.base': 'Phone number must contain only digits, spaces, and standard phone symbols'
+  }),
+  profile_image_url: Joi.string().uri({ scheme: ['http', 'https', 'data'] }).optional().allow(null, '').messages({
+    'string.uri': 'Profile image must be a valid URL or data URI'
   })
 });
 

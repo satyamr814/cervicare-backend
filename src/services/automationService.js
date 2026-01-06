@@ -6,7 +6,8 @@ class AutomationService {
     this.n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
     this.timeout = 10000; // 10 seconds timeout
     this.retryAttempts = 3;
-    this.retryDelay = 1000;
+    this.lastTriggerTime = new Map(); // Simple rate limiting per user/action
+    this.rateLimit = 60000; // 1 minute between same user/action triggers
   }
 
   async triggerN8nWebhook(payload) {
@@ -18,7 +19,19 @@ class AutomationService {
     try {
       // Validate payload
       const validatedPayload = this.validatePayload(payload);
-      
+
+      // Simple Rate Limiting
+      const rateLimitKey = `${validatedPayload.user_id}:${validatedPayload.action_type}`;
+      const now = Date.now();
+      if (this.lastTriggerTime.has(rateLimitKey)) {
+        const timePassed = now - this.lastTriggerTime.get(rateLimitKey);
+        if (timePassed < this.rateLimit) {
+          console.log(`ℹ️ Rate limiting: Webhook for user ${validatedPayload.user_id} and action ${validatedPayload.action_type} throttled.`);
+          return false;
+        }
+      }
+      this.lastTriggerTime.set(rateLimitKey, now);
+
       // Check user consent
       const hasConsent = await this.checkUserConsent(validatedPayload.user_id, validatedPayload.action_type);
       if (!hasConsent) {
@@ -26,21 +39,30 @@ class AutomationService {
         return false;
       }
 
+      // Safeguard: Remove any sensitive data from payload before sending
+      // We explicitly allow phone for WhatsApp n8n nodes, but filter other PII
+      const safePayload = { ...validatedPayload };
+      delete safePayload.email; // Ensure email is never leaked to n8n if present
+      if (safePayload.metadata) {
+        delete safePayload.metadata.email;
+        delete safePayload.metadata.password; // Double safety
+      }
+
       // Make webhook call with retry mechanism
-      const response = await this.makeWebhookCall(validatedPayload);
+      const response = await this.makeWebhookCall(safePayload);
 
       // Log successful webhook
-      await this.logWebhook(validatedPayload, 'success', response.status, response.data);
+      await this.logWebhook(safePayload, 'success', response.status, response.data);
 
-      console.log(`✅ N8N webhook triggered successfully for user ${validatedPayload.user_id}, action: ${validatedPayload.action_type}`);
+      console.log(`✅ N8N webhook triggered successfully for user ${safePayload.user_id}, action: ${safePayload.action_type}`);
       return true;
 
     } catch (error) {
       console.error(`❌ Failed to trigger N8N webhook for user ${payload.user_id}, action: ${payload.action_type}:`, error.message);
-      
+
       // Log failed webhook
       await this.logWebhook(payload, 'failed', null, null, error.message);
-      
+
       return false;
     }
   }
@@ -48,7 +70,7 @@ class AutomationService {
   validatePayload(payload) {
     const required = ['user_id', 'action_type', 'timestamp'];
     const missing = required.filter(field => !payload[field]);
-    
+
     if (missing.length > 0) {
       throw new Error(`Missing required fields: ${missing.join(', ')}`);
     }
@@ -73,7 +95,7 @@ class AutomationService {
         WHERE up.user_id = $1
       `;
       const result = await pool.query(query, [userId]);
-      
+
       if (result.rows.length === 0) {
         console.warn(`⚠️ No profile found for user ${userId}`);
         return false;
@@ -86,19 +108,19 @@ class AutomationService {
         case 'user_signup':
           // Welcome messages don't require explicit consent
           return true;
-        
+
         case 'profile_completed':
         case 'diet_plan_viewed':
         case 'protection_plan_viewed':
         case 'reminder_opt_in':
           // Health-related actions require WhatsApp consent
           return profile.whatsapp_consent === true && profile.phone;
-        
+
         case 'marketing_update':
         case 'newsletter_subscription':
           // Marketing actions require marketing consent
           return profile.marketing_consent === true && profile.phone;
-        
+
         default:
           // Default to requiring WhatsApp consent
           return profile.whatsapp_consent === true && profile.phone;
@@ -143,12 +165,12 @@ class AutomationService {
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id
       `;
-      
+
       await pool.query(query, [
-        payload.user_id, 
-        payload.action_type, 
-        JSON.stringify(payload), 
-        responseStatus, 
+        payload.user_id,
+        payload.action_type,
+        JSON.stringify(payload),
+        responseStatus,
         responseBody ? JSON.stringify(responseBody) : null
       ]);
     } catch (error) {
@@ -297,7 +319,7 @@ class AutomationService {
         GROUP BY webhook_type
         ORDER BY total_calls DESC
       `;
-      
+
       const result = await pool.query(query);
       return result.rows;
     } catch (error) {
@@ -316,7 +338,7 @@ class AutomationService {
           COUNT(CASE WHEN phone IS NOT NULL AND phone != '' THEN 1 END) as has_phone
         FROM user_profiles
       `;
-      
+
       const result = await pool.query(query);
       return result.rows[0];
     } catch (error) {
