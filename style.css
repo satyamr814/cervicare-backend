@@ -575,7 +575,8 @@ nav a:hover {
 .vaccination-section,
 .two-assessment-section {
     padding: 80px 6%;
-    background: #f7fbff;
+    background: #eef6fc;
+    /* Slightly darker than #f7fbff for better visibility */
 }
 
 .ai-bot-container,
