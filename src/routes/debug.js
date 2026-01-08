@@ -3,6 +3,20 @@ const pool = require('../config/database');
 
 const router = express.Router();
 
+// Safe debug endpoint to check seeded users (emails only)
+router.get('/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT email, role, created_at FROM users ORDER BY created_at DESC');
+    res.json({
+      success: true,
+      count: result.rows.length,
+      users: result.rows
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/db', async (req, res) => {
   try {
     const result = await pool.query('SELECT 1 as ok');

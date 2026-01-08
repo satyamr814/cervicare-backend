@@ -6,6 +6,9 @@ class SeederService {
         try {
             console.log('🌱 Starting database seeding...');
 
+            // 0. Enable pgcrypto extension for UUID generation
+            await pool.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
+
             // 1. Create Users Table
             await pool.query(`
         CREATE TABLE IF NOT EXISTS users (

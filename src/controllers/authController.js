@@ -6,7 +6,8 @@ const googleSheetsService = require('../services/googleSheetsService');
 class AuthController {
   static async signup(req, res) {
     try {
-      const { email, password, phone, city } = req.body;
+      const { password, phone, city } = req.body;
+      const email = req.body.email?.toLowerCase().trim();
 
       // Check if user already exists
       const existingUser = await User.findByEmail(email);
@@ -64,7 +65,8 @@ class AuthController {
 
   static async login(req, res) {
     try {
-      const { email, password } = req.body;
+      const { password } = req.body;
+      const email = req.body.email?.toLowerCase().trim();
 
       // Find user by email
       const user = await User.findByEmail(email);
