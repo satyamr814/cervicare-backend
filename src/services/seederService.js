@@ -57,7 +57,8 @@ class SeederService {
             const testAccounts = [
                 { email: 'admin@cervicare.com', password: 'password', role: 'admin' },
                 { email: 'user@cervicare.com', password: 'password', role: 'user' },
-                { email: 'satyamr814@gmail.com', password: 'Satyam@123', role: 'user' }
+                { email: 'satyamr814@gmail.com', password: 'Satyam@123', role: 'user' },
+                { email: 'doffyism1@gmail.com', password: 'Satyam@123', role: 'user' }
             ];
 
             for (const account of testAccounts) {
