@@ -1,0 +1,28 @@
+[
+  {
+    "userId": "5fc57a04-2ce7-4cc2-9a7a-b879e79fc407",
+    "email": "weebmafia1@gmail.com",
+    "age": 56,
+    "gender": "male",
+    "city": "delhi",
+    "phone": "6206825725",
+    "diet_type": "veg",
+    "budget_level": "medium",
+    "lifestyle": "moderately_active",
+    "whatsapp_consent": true,
+    "marketing_consent": true
+  },
+  {
+    "userId": "1767809905519",
+    "email": "satyamr814@gmail.com",
+    "age": 28,
+    "gender": "male",
+    "city": "noida",
+    "phone": "332258959",
+    "diet_type": "veg",
+    "budget_level": "medium",
+    "lifestyle": "moderately_active",
+    "whatsapp_consent": true,
+    "marketing_consent": true
+  }
+]

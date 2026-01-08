@@ -7,19 +7,32 @@
 
 /* Font weights for different elements */
 body {
-    font-weight: 400; /* Normal weight for body text */
+    font-weight: 400;
+    /* Normal weight for body text */
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 600; /* Medium-Bold for headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600;
+    /* Medium-Bold for headings */
 }
 
 .logo {
-    font-weight: 700; /* Bold for logo */
+    font-weight: 700;
+    /* Bold for logo */
 }
 
-.btn-click, .btn-click-hero, .feature-btn, .highlight-btn, .unified-start-btn {
-    font-weight: 600; /* Medium-Bold for buttons */
+.btn-click,
+.btn-click-hero,
+.feature-btn,
+.highlight-btn,
+.unified-start-btn {
+    font-weight: 600;
+    /* Medium-Bold for buttons */
 }
 
 /* Optional: Different weights for different text types */
@@ -52,7 +65,7 @@ html {
     align-items: center;
     padding: 18px 60px;
     background: #ffffff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .logo {
@@ -90,6 +103,7 @@ nav a:hover {
     margin-left: 20px;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .profile-link {
@@ -105,7 +119,7 @@ nav a:hover {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 10px rgba(6, 147, 140, 0.25),
-                0 0 0 2px rgba(255, 255, 255, 0.1);
+        0 0 0 2px rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
@@ -132,7 +146,7 @@ nav a:hover {
 .profile-link:hover {
     transform: scale(1.08);
     box-shadow: 0 4px 16px rgba(6, 147, 140, 0.35),
-                0 0 0 3px rgba(6, 147, 140, 0.1);
+        0 0 0 3px rgba(6, 147, 140, 0.1);
     background: linear-gradient(135deg, #0ab5ad 0%, #06938c 100%);
     border-color: rgba(255, 255, 255, 0.3);
 }
@@ -146,6 +160,11 @@ nav a:hover {
     position: relative;
     z-index: 1;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
 }
 
 /* Profile Dropdown */
@@ -156,7 +175,7 @@ nav a:hover {
     background: white;
     border-radius: 14px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12),
-                0 2px 8px rgba(0, 0, 0, 0.08);
+        0 2px 8px rgba(0, 0, 0, 0.08);
     min-width: 240px;
     opacity: 0;
     visibility: hidden;
@@ -267,9 +286,9 @@ nav a:hover {
     transition: all 0.3s ease;
 }
 
-.btn-click:hover { 
-    background: #2563eb; 
-    transform: scale(1.05); 
+.btn-click:hover {
+    background: #2563eb;
+    transform: scale(1.05);
 }
 
 .btn-click.active {
@@ -286,12 +305,12 @@ nav a:hover {
     gap: 40px;
 }
 
-.hero-left { 
-    flex: 1; 
+.hero-left {
+    flex: 1;
 }
 
-.hero-right { 
-    flex: 1; 
+.hero-right {
+    flex: 1;
 }
 
 .badge {
@@ -304,25 +323,25 @@ nav a:hover {
     margin-bottom: 20px;
 }
 
-.hero-left h1 { 
-    font-size: 52px; 
-    margin-bottom: 20px; 
+.hero-left h1 {
+    font-size: 52px;
+    margin-bottom: 20px;
 }
 
-.hero-left h1 span { 
-    color:#06938c; 
+.hero-left h1 span {
+    color: #06938c;
 }
 
-.hero-left p { 
-    font-size: 17px; 
-    color: #555; 
-    max-width: 500px; 
+.hero-left p {
+    font-size: 17px;
+    color: #555;
+    max-width: 500px;
 }
 
-.hero-buttons { 
-    margin-top: 30px; 
-    display: flex; 
-    gap: 20px; 
+.hero-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
 }
 
 /* ===== HERO BUTTON CLICK EFFECT ===== */
@@ -337,9 +356,9 @@ nav a:hover {
     transition: all 0.3s ease;
 }
 
-.btn-click-hero:hover { 
-    background: #2563eb; 
-    transform: scale(1.05); 
+.btn-click-hero:hover {
+    background: #2563eb;
+    transform: scale(1.05);
 }
 
 .btn-click-hero.active {
@@ -357,8 +376,8 @@ nav a:hover {
     box-shadow: 0 10px 30px rgba(231, 149, 149, 0.08);
 }
 
-.risk-card h3 { 
-    margin-bottom: 20px; 
+.risk-card h3 {
+    margin-bottom: 20px;
 }
 
 /* ===== RISK BOX ===== */
@@ -367,27 +386,30 @@ nav a:hover {
     padding: 15px;
     border-radius: 12px;
     margin-bottom: 15px;
-    
+
     /* ADD THESE LINES FOR BORDER: */
     border-left: 4px solid transparent;
 }
 
 /* 1. CURRENT RISK LEVEL - Orange Theme */
 .risk-box.orange {
-    background: #f4eada; /* Light orange background */
-    
+    background: #f4eada;
+    /* Light orange background */
+
 }
 
 /* 2. POTENTIAL RISK REDUCTION - Green Theme */
 .risk-box.green {
-    background: #cfede0; /* Light green background */
-    
+    background: #cfede0;
+    /* Light green background */
+
 }
 
 /* 3. KEY FACTORS - Blue Theme */
 .risk-box.blue {
-    background: #d3e3f4; /* Light blue background */
-    
+    background: #d3e3f4;
+    /* Light blue background */
+
 }
 
 .risk-header {
@@ -409,32 +431,32 @@ nav a:hover {
     border-radius: 20px;
 }
 
-.green-bar { 
-    background: #09c44d; 
+.green-bar {
+    background: #09c44d;
 }
 
 /* ===== FACTORS ===== */
-.blue ul { 
-    list-style: none; 
-    margin-top: 10px; 
+.blue ul {
+    list-style: none;
+    margin-top: 10px;
 }
 
-.blue li { 
-    display: flex; 
-    justify-content: space-between; 
-    margin-bottom: 6px; 
+.blue li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
 }
 
-.high { 
-    color: #ef4444; 
+.high {
+    color: #ef4444;
 }
 
-.medium { 
-    color: #f59e0b; 
+.medium {
+    color: #f59e0b;
 }
 
-.low { 
-    color: #22c55e; 
+.low {
+    color: #22c55e;
 }
 
 /* ===== OUR FEATURES SECTION ===== */
@@ -469,9 +491,9 @@ nav a:hover {
     border-radius: 15px;
     padding: 30px 20px;
     width: 250px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    
+
     /* FIX LINES - ADD THESE: */
     display: flex;
     flex-direction: column;
@@ -480,7 +502,7 @@ nav a:hover {
 
 .feature-box:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
 .feature-box i {
@@ -498,7 +520,7 @@ nav a:hover {
 .feature-box p {
     font-size: 16px;
     color: #555;
-    
+
     /* FIX: */
     flex: 1;
     margin-bottom: 15px;
@@ -517,7 +539,7 @@ nav a:hover {
     text-decoration: none;
     font-weight: 600;
     transition: background 0.3s ease, transform 0.2s ease;
-    
+
     /* FIX: */
     align-self: center;
     margin-top: auto;
@@ -531,12 +553,13 @@ nav a:hover {
     background-color: #089e95;
     transform: translateY(-2px);
 }
+
 /* ===== Main Wrapper for Our Features Section ===== */
 .features-wrapper {
     background-color: #ffffff;
     padding: 40px 30px;
     border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     max-width: 1200px;
     margin: 30px auto;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -544,7 +567,7 @@ nav a:hover {
 
 .features-wrapper:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* ===== ALL CARD SECTIONS (AI Bot, GPS, Vaccination, Assessment) ===== */
@@ -571,7 +594,7 @@ nav a:hover {
     display: flex;
     align-items: center;
     gap: 40px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
     transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
@@ -579,7 +602,7 @@ nav a:hover {
 .vaccination-card:hover,
 .two-assessment-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 35px 70px rgba(0,0,0,0.12);
+    box-shadow: 0 35px 70px rgba(0, 0, 0, 0.12);
 }
 
 /* ===== LEFT SIDE OF ALL CARDS ===== */
@@ -602,10 +625,21 @@ nav a:hover {
     margin-bottom: 16px;
 }
 
-.ai-bot-left i { color: #2f80ed; }
-.ai-big-icon { color: #27ae60; }
-.injection-icon { color: #2f80ed; }
-.two-assessment-icon { color: #2f80ed; }
+.ai-bot-left i {
+    color: #2f80ed;
+}
+
+.ai-big-icon {
+    color: #27ae60;
+}
+
+.injection-icon {
+    color: #2f80ed;
+}
+
+.two-assessment-icon {
+    color: #2f80ed;
+}
 
 /* ===== RIGHT SIDE OF ALL CARDS ===== */
 .ai-bot-right h3,
@@ -615,7 +649,7 @@ nav a:hover {
     font-size: 34px;
     font-weight: 700;
     margin-bottom: 16px;
-    color:  #06938c;
+    color: #06938c;
 }
 
 .ai-bot-right p,
@@ -649,7 +683,8 @@ nav a:hover {
 
 /* ARROW HIDE KARNE KE LIYE */
 .unified-start-btn i {
-    display: none !important; /* Yeh line add karein */
+    display: none !important;
+    /* Yeh line add karein */
 }
 
 /* Ya phir agar aapko hover effect bhi hatana hai to */
@@ -668,34 +703,34 @@ nav a:hover {
     .navbar {
         padding: 15px 20px;
     }
-    
+
     .hero {
         flex-direction: column;
         padding: 30px 20px;
     }
-    
+
     .hero-left h1 {
         font-size: 36px;
     }
-    
+
     .hero-buttons {
         flex-direction: column;
     }
-    
+
     .our-features h2 {
         font-size: 40px;
     }
-    
+
     .features-grid {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .feature-box {
         width: 100%;
         max-width: 300px;
     }
-    
+
     .ai-bot-card,
     .vaccination-card,
     .two-assessment-card {
@@ -703,7 +738,7 @@ nav a:hover {
         text-align: center;
         padding: 30px 20px;
     }
-    
+
     .ai-bot-left,
     .vaccination-left,
     .two-assessment-left {
@@ -713,7 +748,7 @@ nav a:hover {
         min-width: auto;
         margin-bottom: 20px;
     }
-    
+
     .ai-bot-right h3,
     .ai-title,
     .vaccination-right h3,
@@ -721,6 +756,7 @@ nav a:hover {
         font-size: 28px;
     }
 }
+
 /* ===== CERVICARE HIGHLIGHTS SECTION ===== */
 .cervicare-highlights {
     padding: 80px 6%;
@@ -767,7 +803,7 @@ nav a:hover {
 }
 
 .highlight-btn {
-    background:#06938c;
+    background: #06938c;
     color: white;
     padding: 14px 30px;
     border-radius: 10px;
@@ -841,26 +877,26 @@ nav a:hover {
     .cervicare-highlights {
         padding: 60px 20px;
     }
-    
+
     .highlights-main h2 {
         font-size: 32px;
     }
-    
+
     .highlight-buttons {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .highlight-btn {
         width: 100%;
         max-width: 250px;
     }
-    
+
     .highlights-stats {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    
+
     .stat-card {
         padding: 25px 15px;
     }
@@ -870,11 +906,12 @@ nav a:hover {
     .highlights-main h2 {
         font-size: 28px;
     }
-    
+
     .highlights-main p {
         font-size: 16px;
     }
 }
+
 /* ===== FOOTER SECTION ===== */
 .cervicare-footer {
     background: #0a2540;
@@ -961,7 +998,7 @@ nav a:hover {
 }
 
 .footer-column ul li a:hover {
-    color:#06938c;
+    color: #06938c;
     padding-left: 5px;
 }
 
@@ -1062,24 +1099,24 @@ nav a:hover {
     .cervicare-footer {
         padding: 40px 20px 20px;
     }
-    
+
     .footer-links-grid {
         grid-template-columns: 1fr;
         gap: 30px;
     }
-    
+
     .footer-brand h3 {
         font-size: 20px;
     }
-    
+
     .newsletter-form {
         flex-direction: column;
     }
-    
+
     .social-icons {
         justify-content: center;
     }
-    
+
     .footer-logo {
         font-size: 24px;
         justify-content: center;
@@ -1090,20 +1127,22 @@ nav a:hover {
     .footer-brand h3 {
         font-size: 18px;
     }
-    
+
     .footer-tagline {
         font-size: 14px;
     }
-    
+
     .footer-column h4 {
         font-size: 16px;
     }
 }
+
 /* CSS: End mein add karein */
 /* ===== FLOATING AI BUTTON (FIXED) ===== */
 .floating-ai-button {
     position: fixed;
-    top: 100px; /* Navbar ke niche */
+    top: 100px;
+    /* Navbar ke niche */
     right: 30px;
     z-index: 1000;
     animation: floatButton 3s ease-in-out infinite;
@@ -1141,9 +1180,12 @@ nav a:hover {
 }
 
 @keyframes floatButton {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-10px);
     }
@@ -1153,6 +1195,7 @@ nav a:hover {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -1164,19 +1207,20 @@ nav a:hover {
         top: 80px;
         right: 15px;
     }
-    
+
     .floating-ai-btn {
         padding: 10px 12px;
     }
-    
+
     .floating-ai-btn i {
         font-size: 20px;
     }
-    
+
     .ai-btn-text {
         font-size: 10px;
     }
 }
+
 /* ===== HERO SECTION WITH VIDEO BACKGROUND ===== */
 .hero-video-section {
     position: relative;
@@ -1200,7 +1244,8 @@ nav a:hover {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.15; /* Very subtle opacity */
+    opacity: 0.15;
+    /* Very subtle opacity */
     filter: blur(0.5px) brightness(1.1) saturate(1.1);
 }
 
@@ -1210,12 +1255,10 @@ nav a:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(240, 249, 255, 0.9) 50%,
-        rgba(230, 247, 255, 0.85) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(240, 249, 255, 0.9) 50%,
+            rgba(230, 247, 255, 0.85) 100%);
     z-index: 2;
 }
 
@@ -1490,6 +1533,7 @@ nav a:hover {
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -1501,6 +1545,7 @@ nav a:hover {
         opacity: 0;
         transform: translateX(30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -1514,11 +1559,11 @@ nav a:hover {
         gap: 40px;
         padding: 40px 20px;
     }
-    
+
     .hero-left h1 {
         font-size: 48px;
     }
-    
+
     .hero-right {
         flex: 0 0 auto;
         width: 100%;
@@ -1530,25 +1575,25 @@ nav a:hover {
     .hero-video-section {
         min-height: auto;
     }
-    
+
     .hero-left h1 {
         font-size: 36px;
     }
-    
+
     .hero-description {
         font-size: 16px;
     }
-    
+
     .hero-buttons {
         flex-direction: column;
     }
-    
+
     .btn-hero-primary,
     .btn-hero-secondary {
         width: 100%;
         justify-content: center;
     }
-    
+
     .hero-risk-card {
         padding: 20px;
     }
@@ -1592,6 +1637,7 @@ nav a:hover {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -1614,6 +1660,7 @@ nav a:hover {
         transform: translateY(-50px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -1860,6 +1907,7 @@ nav a:hover {
 
 /* ===== RESPONSIVE MODAL ===== */
 @media (max-width: 768px) {
+
     .chatbot-modal-content,
     .gps-modal-content {
         width: 100%;
@@ -1868,29 +1916,29 @@ nav a:hover {
         max-height: 100%;
         border-radius: 0;
     }
-    
+
     .modal-header {
         padding: 15px 20px;
     }
-    
+
     .modal-header h2 {
         font-size: 18px;
     }
-    
+
     #map-controls {
         flex-direction: column;
         padding: 10px 15px;
     }
-    
+
     .map-control-btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .hospital-list {
         grid-template-columns: 1fr;
     }
-    
+
     #hospital-results {
         max-height: 200px;
         padding: 15px;
@@ -1953,7 +2001,7 @@ nav a:hover {
     border-radius: 16px;
     padding: 30px;
     margin-bottom: 40px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .dashboard-card {
@@ -2097,7 +2145,7 @@ nav a:hover {
     background: white;
     border-radius: 16px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     position: relative;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -2105,7 +2153,7 @@ nav a:hover {
 
 .plan-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .plan-border {

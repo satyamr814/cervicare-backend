@@ -1,0 +1,100 @@
+[
+  {
+    "userId": "1",
+    "score": 45,
+    "plans": [
+      {
+        "id": "plan-1",
+        "title": "Annual Screening Schedule",
+        "description": "Regular PAP smears and HPV tests are your first line of defense.",
+        "status": "not-started",
+        "priority": "high",
+        "duration": "12 months",
+        "steps": [
+          {
+            "title": "Schedule Consultation",
+            "note": "Book appointment with a gynecologist",
+            "frequency": "Once"
+          },
+          {
+            "title": "Complete PAP Smear",
+            "note": "Standard diagnostic test",
+            "frequency": "Every 3 years"
+          }
+        ],
+        "notes": ""
+      },
+      {
+        "id": "plan-2",
+        "title": "Lifestyle Optimization",
+        "description": "Dietary and lifestyle changes to boost your immune system.",
+        "status": "in-progress",
+        "priority": "medium",
+        "duration": "Ongoing",
+        "steps": [
+          {
+            "title": "Vitamin C Intake",
+            "note": "Daily fruits or supplements",
+            "frequency": "Daily"
+          },
+          {
+            "title": "Consistent Sleep",
+            "note": "7-8 hours per night",
+            "frequency": "Daily"
+          }
+        ],
+        "notes": "Started focusing on better sleep."
+      }
+    ],
+    "updatedAt": "2026-01-06T19:13:24.057Z"
+  },
+  {
+    "userId": "1767809905519",
+    "score": 60,
+    "plans": [
+      {
+        "id": "plan-1",
+        "title": "Annual Screening Schedule",
+        "description": "Regular PAP smears and HPV tests are your first line of defense.",
+        "status": "not-started",
+        "priority": "high",
+        "duration": "12 months",
+        "steps": [
+          {
+            "title": "Schedule Consultation",
+            "note": "Book appointment with a gynecologist",
+            "frequency": "Once"
+          },
+          {
+            "title": "Complete PAP Smear",
+            "note": "Standard diagnostic test",
+            "frequency": "Every 3 years"
+          }
+        ],
+        "notes": ""
+      },
+      {
+        "id": "plan-2",
+        "title": "Lifestyle Optimization",
+        "description": "Dietary and lifestyle changes to boost your immune system.",
+        "status": "completed",
+        "priority": "medium",
+        "duration": "Ongoing",
+        "steps": [
+          {
+            "title": "Vitamin C Intake",
+            "note": "Daily fruits or supplements",
+            "frequency": "Daily"
+          },
+          {
+            "title": "Consistent Sleep",
+            "note": "7-8 hours per night",
+            "frequency": "Daily"
+          }
+        ],
+        "notes": "Started focusing on better sleep."
+      }
+    ],
+    "updatedAt": "2026-01-07T19:17:53.276Z"
+  }
+]

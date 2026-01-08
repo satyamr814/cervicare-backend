@@ -14,10 +14,22 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files
 app.use(express.static('.'));
+app.use('/uploads', express.static('uploads'));
 
 // File upload for avatars
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext)
+  }
+});
+
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -29,26 +41,52 @@ const upload = multer({
 let users = [];
 let userProfiles = [];
 let avatarData = [];
+let userProtection = []; // Store score and plans per user
 
 // Initialize data
 async function initializeData() {
   try {
     // Load users
     const usersData = await fs.readFile('users.json', 'utf8').catch(() => '[]');
-    users = JSON.parse(usersData);
-    
-    // Load profiles
+    const parsedUsers = JSON.parse(usersData);
+    users = Array.isArray(parsedUsers) ? parsedUsers : (parsedUsers.users || []);
+
+    // Ensure test accounts exist
+    const testAccounts = [
+      { id: '1', email: 'admin@cervicare.com', password: 'password', role: 'admin' },
+      { id: '2', email: 'user@cervicare.com', password: 'password', role: 'user' }
+    ];
+
+    testAccounts.forEach(testAcc => {
+      if (!users.find(u => u.email === testAcc.email)) {
+        users.push({
+          ...testAcc,
+          password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // hashed 'password'
+          createdAt: new Date().toISOString()
+        });
+      }
+    });
+
+    // Save if updated
+    await fs.writeFile('users.json', JSON.stringify(users, null, 2));
     const profilesData = await fs.readFile('user-profiles.json', 'utf8').catch(() => '[]');
-    userProfiles = JSON.parse(profilesData);
-    
+    const parsedProfiles = JSON.parse(profilesData);
+    userProfiles = Array.isArray(parsedProfiles) ? parsedProfiles : (parsedProfiles.profiles || []);
+
     // Load avatar data
     const avatarDataFile = await fs.readFile('avatar-data.json', 'utf8').catch(() => '[]');
-    avatarData = JSON.parse(avatarDataFile);
-    
+    const parsedAvatars = JSON.parse(avatarDataFile);
+    avatarData = Array.isArray(parsedAvatars) ? parsedAvatars : (parsedAvatars.avatars || []);
+
+    // Load protection data
+    const protectionDataFile = await fs.readFile('user-protection.json', 'utf8').catch(() => '[]');
+    const parsedProtection = JSON.parse(protectionDataFile);
+    userProtection = Array.isArray(parsedProtection) ? parsedProtection : (parsedProtection.protection || []);
+
     console.log(`✅ Loaded ${users.length} users, ${userProfiles.length} profiles, ${avatarData.length} avatars`);
   } catch (error) {
     console.log('📝 Creating initial data...');
-    
+
     // Create default users
     users = [
       {
@@ -66,7 +104,7 @@ async function initializeData() {
         createdAt: new Date().toISOString()
       }
     ];
-    
+
     await fs.writeFile('users.json', JSON.stringify(users, null, 2));
   }
 }
@@ -80,21 +118,22 @@ class GoogleSheetsLogger {
       email: userData.email,
       action: userData.action,
       ip: userData.ip || 'localhost',
-      userAgent: userData.userAgent || 'browser'
+      userAgent: userData.userAgent || 'browser',
+      details: userData.details || ''
     };
-    
+
     try {
-      await fs.appendFile('user-logins.csv', 
-        `${logEntry.timestamp},${logEntry.userId},${logEntry.email},${logEntry.action},${logEntry.ip},${logEntry.userAgent}\n`
+      await fs.appendFile('user-logins.csv',
+        `${logEntry.timestamp},${logEntry.userId},${logEntry.email},${logEntry.action},${logEntry.ip},${logEntry.userAgent},${logEntry.details}\n`
       );
-      console.log(`📊 User login logged: ${userData.email}`);
+      console.log(`📊 Action logged [${userData.action}]: ${userData.email}`);
       return true;
     } catch (error) {
-      console.error('❌ Failed to log user login:', error);
+      console.error('❌ Failed to log action:', error);
       return false;
     }
   }
-  
+
   static async logBotData(botData) {
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -106,9 +145,9 @@ class GoogleSheetsLogger {
       actionTaken: botData.actionTaken || '',
       whatsappSent: botData.whatsappSent || false
     };
-    
+
     try {
-      await fs.appendFile('bot-data.csv', 
+      await fs.appendFile('bot-data.csv',
         `${logEntry.timestamp},${logEntry.userId},${logEntry.email},${logEntry.botMessage},${logEntry.botResponse},${logEntry.intent},${logEntry.actionTaken},${logEntry.whatsappSent}\n`
       );
       console.log(`🤖 Bot data logged: ${botData.botMessage}`);
@@ -118,7 +157,7 @@ class GoogleSheetsLogger {
       return false;
     }
   }
-  
+
   static async logAvatarChange(userId, avatarType, avatarUrl) {
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -126,9 +165,9 @@ class GoogleSheetsLogger {
       avatarType: avatarType,
       avatarUrl: avatarUrl
     };
-    
+
     try {
-      await fs.appendFile('avatar-history.csv', 
+      await fs.appendFile('avatar-history.csv',
         `${logEntry.timestamp},${logEntry.userId},${logEntry.avatarType},${logEntry.avatarUrl}\n`
       );
       console.log(`👤 Avatar change logged: ${avatarType}`);
@@ -161,7 +200,7 @@ app.get('/protection.html', (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     const user = users.find(u => u.email === email);
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -185,7 +224,12 @@ app.post('/api/auth/login', async (req, res) => {
       success: true,
       message: 'Login successful',
       data: {
-        user: { id: user.id, email: user.email, role: user.role },
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          createdAt: user.createdAt || user.created_at
+        },
         token: 'simple-jwt-token-for-demo'
       }
     });
@@ -199,7 +243,7 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/auth/signup', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     if (users.find(u => u.email === email)) {
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
@@ -228,7 +272,12 @@ app.post('/api/auth/signup', async (req, res) => {
       success: true,
       message: 'Signup successful',
       data: {
-        user: { id: newUser.id, email: newUser.email, role: newUser.role },
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          role: newUser.role,
+          createdAt: newUser.createdAt
+        },
         token: 'simple-jwt-token-for-demo'
       }
     });
@@ -243,7 +292,7 @@ app.post('/api/auth/signup', async (req, res) => {
 app.post('/api/profile', async (req, res) => {
   try {
     const profileData = req.body;
-    
+
     const existingProfile = userProfiles.find(p => p.userId === profileData.userId);
     if (existingProfile) {
       Object.assign(existingProfile, profileData);
@@ -259,7 +308,8 @@ app.post('/api/profile', async (req, res) => {
       email: profileData.email || 'unknown',
       action: 'profile_updated',
       ip: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
+      details: JSON.stringify(profileData).replace(/,/g, ';') // Avoid CSV breaking with commas
     });
 
     res.json({ success: true, message: 'Profile saved successfully' });
@@ -273,7 +323,7 @@ app.post('/api/profile', async (req, res) => {
 app.get('/api/profile/:userId', (req, res) => {
   try {
     const profile = userProfiles.find(p => p.userId === req.params.userId);
-    
+
     if (!profile) {
       return res.status(404).json({ success: false, message: 'Profile not found' });
     }
@@ -291,28 +341,28 @@ app.post('/api/avatar/generate-ai', async (req, res) => {
     const { style = 'avataaars', seed } = req.body;
     const avatarSeed = seed || `user-${Date.now()}`;
     const avatarUrl = `https://api.dicebear.com/7.x/${style}/svg?seed=${avatarSeed}`;
-    
+
     // Save avatar data
     const userId = req.body.userId;
     if (userId) {
       const existingAvatar = avatarData.find(a => a.userId === userId);
       if (existingAvatar) {
-        existingAvatar.avatarType = 'ai_generated';
-        existingAvatar.displayImageUrl = avatarUrl;
+        existingAvatar.avatar_type = 'ai_generated';
+        existingAvatar.display_image_url = avatarUrl;
         existingAvatar.updatedAt = new Date().toISOString();
       } else {
         avatarData.push({
           userId,
-          avatarType: 'ai_generated',
-          displayImageUrl: avatarUrl,
+          avatar_type: 'ai_generated',
+          display_image_url: avatarUrl,
           createdAt: new Date().toISOString()
         });
       }
-      
+
       await fs.writeFile('avatar-data.json', JSON.stringify(avatarData, null, 2));
       await GoogleSheetsLogger.logAvatarChange(userId, 'ai_generated', avatarUrl);
     }
-    
+
     res.json({
       success: true,
       message: 'AI avatar generated successfully',
@@ -329,28 +379,28 @@ app.get('/api/avatar/random', async (req, res) => {
     const styles = ['avataaars', 'adventurer', 'bottts', 'lorelei', 'notionists', 'personas'];
     const randomStyle = styles[Math.floor(Math.random() * styles.length)];
     const avatarUrl = `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${Date.now()}`;
-    
+
     // Save avatar data
     const userId = req.query.userId;
     if (userId) {
       const existingAvatar = avatarData.find(a => a.userId === userId);
       if (existingAvatar) {
-        existingAvatar.avatarType = 'random';
-        existingAvatar.displayImageUrl = avatarUrl;
+        existingAvatar.avatar_type = 'random';
+        existingAvatar.display_image_url = avatarUrl;
         existingAvatar.updatedAt = new Date().toISOString();
       } else {
         avatarData.push({
           userId,
-          avatarType: 'random',
-          displayImageUrl: avatarUrl,
+          avatar_type: 'random',
+          display_image_url: avatarUrl,
           createdAt: new Date().toISOString()
         });
       }
-      
+
       await fs.writeFile('avatar-data.json', JSON.stringify(avatarData, null, 2));
       await GoogleSheetsLogger.logAvatarChange(userId, 'random', avatarUrl);
     }
-    
+
     res.json({
       success: true,
       message: 'Random avatar selected successfully',
@@ -362,43 +412,64 @@ app.get('/api/avatar/random', async (req, res) => {
   }
 });
 
-app.post('/api/avatar/upload', upload.single('image'), async (req, res) => {
+app.post('/api/avatar/upload', async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    console.log('📬 Received Base64 upload request');
+    const { userId, image, filename } = req.body;
+
+    if (!userId || !image) {
+      console.log('❌ Missing userId or image data');
+      return res.status(400).json({ success: false, message: 'Missing user ID or image data' });
     }
-    
-    // For demo, we'll just use a placeholder URL
-    const imageUrl = `/uploads/${req.file.originalname}`;
-    const userId = req.body.userId;
-    
-    if (userId) {
-      const existingAvatar = avatarData.find(a => a.userId === userId);
-      if (existingAvatar) {
-        existingAvatar.avatarType = 'custom_upload';
-        existingAvatar.displayImageUrl = imageUrl;
-        existingAvatar.updatedAt = new Date().toISOString();
-      } else {
-        avatarData.push({
-          userId,
-          avatarType: 'custom_upload',
-          displayImageUrl: imageUrl,
-          createdAt: new Date().toISOString()
-        });
-      }
-      
-      await fs.writeFile('avatar-data.json', JSON.stringify(avatarData, null, 2));
-      await GoogleSheetsLogger.logAvatarChange(userId, 'custom_upload', imageUrl);
+
+    // Extract base64 data
+    // Format: "data:image/png;base64,iVBORw0KGgoAAA..."
+    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+    if (!matches || matches.length !== 3) {
+      console.log('❌ Invalid image format');
+      return res.status(400).json({ success: false, message: 'Invalid image format' });
     }
-    
+
+    const imageBuffer = Buffer.from(matches[2], 'base64');
+    const safeFilename = `custom-${Date.now()}-${Math.round(Math.random() * 1E9)}.png`;
+    const filePath = path.join('uploads', safeFilename);
+
+    // Save file
+    await fs.writeFile(filePath, imageBuffer);
+    const imageUrl = `/uploads/${safeFilename}`;
+
+    console.log('✅ File saved to:', filePath);
+
+    // Update data
+    const existingAvatar = avatarData.find(a => a.userId === userId);
+    if (existingAvatar) {
+      existingAvatar.avatar_type = 'custom_upload';
+      existingAvatar.display_image_url = imageUrl;
+      existingAvatar.updatedAt = new Date().toISOString();
+    } else {
+      avatarData.push({
+        userId,
+        avatar_type: 'custom_upload',
+        display_image_url: imageUrl,
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    await fs.writeFile('avatar-data.json', JSON.stringify(avatarData, null, 2));
+    await GoogleSheetsLogger.logAvatarChange(userId, 'custom_upload', imageUrl);
+
+    console.log('💾 Avatar data saved successfully');
+
     res.json({
       success: true,
-      message: 'Custom image uploaded successfully',
-      data: { imageUrl, thumbnailUrl: imageUrl, uploadId: Date.now().toString() }
+      message: 'Image uploaded successfully',
+      data: { imageUrl }
     });
+
   } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ success: false, message: 'Failed to upload custom image' });
+    console.error('❌ Upload Error:', error);
+    res.status(500).json({ success: false, message: 'Server upload failed' });
   }
 });
 
@@ -406,7 +477,7 @@ app.get('/api/avatar/current/:userId', (req, res) => {
   try {
     const userId = req.params.userId;
     const avatar = avatarData.find(a => a.userId === userId);
-    
+
     if (!avatar) {
       return res.json({
         success: true,
@@ -418,7 +489,7 @@ app.get('/api/avatar/current/:userId', (req, res) => {
         }
       });
     }
-    
+
     res.json({
       success: true,
       data: { avatar }
@@ -429,11 +500,96 @@ app.get('/api/avatar/current/:userId', (req, res) => {
   }
 });
 
+// Protection Plan endpoints
+app.get('/api/protection/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    let data = userProtection.find(p => p.userId === userId);
+
+    if (!data) {
+      // Create default protection data for new user
+      data = {
+        userId,
+        score: 45,
+        plans: [
+          {
+            id: 'plan-1',
+            title: 'Annual Screening Schedule',
+            description: 'Regular PAP smears and HPV tests are your first line of defense.',
+            status: 'not-started',
+            priority: 'high',
+            duration: '12 months',
+            steps: [
+              { title: 'Schedule Consultation', note: 'Book appointment with a gynecologist', frequency: 'Once' },
+              { title: 'Complete PAP Smear', note: 'Standard diagnostic test', frequency: 'Every 3 years' }
+            ],
+            notes: ''
+          },
+          {
+            id: 'plan-2',
+            title: 'Lifestyle Optimization',
+            description: 'Dietary and lifestyle changes to boost your immune system.',
+            status: 'in-progress',
+            priority: 'medium',
+            duration: 'Ongoing',
+            steps: [
+              { title: 'Vitamin C Intake', note: 'Daily fruits or supplements', frequency: 'Daily' },
+              { title: 'Consistent Sleep', note: '7-8 hours per night', frequency: 'Daily' }
+            ],
+            notes: 'Started focusing on better sleep.'
+          }
+        ],
+        updatedAt: new Date().toISOString()
+      };
+      userProtection.push(data);
+      await fs.writeFile('user-protection.json', JSON.stringify(userProtection, null, 2));
+    }
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Get protection error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+app.post('/api/protection/plans/update', async (req, res) => {
+  try {
+    const { userId, planId, status, notes } = req.body;
+    const userData = userProtection.find(p => p.userId === userId);
+
+    if (!userData) {
+      return res.status(404).json({ success: false, message: 'Protection data not found' });
+    }
+
+    const plan = userData.plans.find(p => p.id === planId);
+    if (!plan) {
+      return res.status(404).json({ success: false, message: 'Plan not found' });
+    }
+
+    if (status) plan.status = status;
+    if (notes !== undefined) plan.notes = notes;
+
+    // Update score based on completed plans
+    const completedCount = userData.plans.filter(p => p.status === 'completed').length;
+    userData.score = 45 + (completedCount * 15); // Simple logic
+    if (userData.score > 100) userData.score = 100;
+
+    userData.updatedAt = new Date().toISOString();
+    await fs.writeFile('user-protection.json', JSON.stringify(userProtection, null, 2));
+
+    res.json({ success: true, message: 'Plan updated successfully', data: userData });
+  } catch (error) {
+    console.error('Update plan error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // Bot webhook endpoint
+
 app.post('/api/bot-data/webhook', async (req, res) => {
   try {
     const botData = req.body;
-    
+
     await GoogleSheetsLogger.logBotData({
       userId: botData.userId || 'unknown',
       email: botData.email || 'unknown',
@@ -485,7 +641,7 @@ app.get('/api/logs', async (req, res) => {
     const userLogins = await fs.readFile('user-logins.csv', 'utf8').catch(() => 'No user logins yet');
     const botData = await fs.readFile('bot-data.csv', 'utf8').catch(() => 'No bot data yet');
     const avatarHistory = await fs.readFile('avatar-history.csv', 'utf8').catch(() => 'No avatar history yet');
-    
+
     res.json({
       success: true,
       data: {
@@ -518,8 +674,16 @@ async function createUploadsDir() {
 // Start server
 async function startServer() {
   await createUploadsDir();
+  // Ensure uploads directory exists
+  try {
+    await fs.mkdir('uploads', { recursive: true });
+    console.log('✅ Uploads directory ensured');
+  } catch (err) {
+    console.error('❌ Failed to create uploads directory:', err);
+  }
+
   await initializeData();
-  
+
   app.listen(PORT, () => {
     console.log(`🚀 CerviCare Server is running on http://localhost:${PORT}`);
     console.log(`\n📄 Pages:`);
@@ -552,6 +716,17 @@ async function startServer() {
     console.log(`   - avatar-history.csv (avatar changes)`);
   });
 }
+
+// Global Crash Prevention
+process.on('uncaughtException', (err) => {
+  console.error('❌ CRITICAL: Uncaught Exception:', err);
+  // Keep server running but log error
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+  // Keep server running but log error
+});
 
 startServer().catch(console.error);
 

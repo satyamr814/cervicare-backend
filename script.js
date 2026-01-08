@@ -1,7 +1,8 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
 
     // ===== CHECK LOGIN STATE AND UPDATE NAVBAR =====
-    function updateNavbarForLogin() {
+    // ===== CHECK LOGIN STATE AND UPDATE NAVBAR =====
+    async function updateNavbarForLogin() {
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         const userData = localStorage.getItem('user');
         const signInBtn = document.getElementById('sign-in-btn');
@@ -9,21 +10,22 @@ document.addEventListener("DOMContentLoaded", function() {
         const userProfileIcon = document.getElementById('user-profile-icon');
         const profileName = document.getElementById('profile-name');
         const profileEmail = document.getElementById('profile-email');
-        
+        const navProfileImg = document.getElementById('nav-profile-img');
+        const navProfileIconDefault = document.getElementById('nav-profile-icon-default');
+
         if (isLoggedIn && userData) {
             try {
                 const user = JSON.parse(userData);
-                // Show user profile icon
+
+                // Show user profile container
                 if (userProfileIcon) {
                     userProfileIcon.style.display = 'block';
                 }
+
                 // Hide sign in/up buttons
-                if (signInBtn) {
-                    signInBtn.style.display = 'none';
-                }
-                if (signUpBtn) {
-                    signUpBtn.style.display = 'none';
-                }
+                if (signInBtn) signInBtn.style.display = 'none';
+                if (signUpBtn) signUpBtn.style.display = 'none';
+
                 // Update profile info
                 if (profileName && user.firstName) {
                     profileName.textContent = `${user.firstName} ${user.lastName || ''}`.trim();
@@ -31,31 +33,51 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (profileEmail && user.email) {
                     profileEmail.textContent = user.email;
                 }
+
+                // Fetch current avatar
+                if (navProfileImg && navProfileIconDefault) {
+                    try {
+                        const userId = user.id || user.userId || user._id;
+                        const response = await fetch(`/api/avatar/current/${userId}`);
+                        const data = await response.json();
+
+                        if (data.success && data.data.avatar && data.data.avatar.display_image_url) {
+                            navProfileImg.src = data.data.avatar.display_image_url;
+                            navProfileImg.style.display = 'block';
+                            navProfileIconDefault.style.display = 'none';
+                        } else {
+                            // Show default icon if no custom avatar
+                            navProfileImg.style.display = 'none';
+                            navProfileIconDefault.style.display = 'inline-block';
+                        }
+                    } catch (err) {
+                        console.error('Error fetching navbar avatar:', err);
+                        // Fallback to default icon
+                        navProfileImg.style.display = 'none';
+                        navProfileIconDefault.style.display = 'inline-block';
+                    }
+                }
+
             } catch (e) {
                 console.error('Error parsing user data:', e);
             }
         } else {
             // Show sign in/up buttons
-            if (signInBtn) {
-                signInBtn.style.display = 'inline-block';
-            }
-            if (signUpBtn) {
-                signUpBtn.style.display = 'inline-block';
-            }
+            if (signInBtn) signInBtn.style.display = 'inline-block';
+            if (signUpBtn) signUpBtn.style.display = 'inline-block';
+
             // Hide user profile icon
-            if (userProfileIcon) {
-                userProfileIcon.style.display = 'none';
-            }
+            if (userProfileIcon) userProfileIcon.style.display = 'none';
         }
     }
-    
+
     // Check login state on page load
     updateNavbarForLogin();
-    
+
     // Handle logout
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
+        logoutBtn.addEventListener('click', function (e) {
             e.preventDefault();
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('user');
@@ -72,14 +94,14 @@ document.addEventListener("DOMContentLoaded", function() {
         video.muted = true;
         video.volume = 0;
         // Ensure it stays muted even if something tries to change it
-        video.addEventListener('volumechange', function() {
+        video.addEventListener('volumechange', function () {
             if (!this.muted) {
                 this.muted = true;
                 this.volume = 0;
             }
         });
     });
-    
+
     // Mute all audio elements
     const audios = document.querySelectorAll('audio');
     audios.forEach(audio => {
@@ -87,19 +109,19 @@ document.addEventListener("DOMContentLoaded", function() {
         audio.volume = 0;
         audio.pause();
     });
-    
+
     // Cancel any speech synthesis that might be running - ULTRA AGGRESSIVE
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         // Prevent any new speech synthesis
         const originalSpeak = window.speechSynthesis.speak;
-        window.speechSynthesis.speak = function() {
+        window.speechSynthesis.speak = function () {
             window.speechSynthesis.cancel();
             return false;
         };
-        
+
         // Continuously cancel speech synthesis - VERY FREQUENT
-        setInterval(function() {
+        setInterval(function () {
             window.speechSynthesis.cancel();
             if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
                 window.speechSynthesis.cancel();
@@ -126,12 +148,12 @@ document.addEventListener("DOMContentLoaded", function() {
             disableAllAudio();
         });
     });
-    
+
     // ===== RISK ASSESSMENT BUTTONS =====
     // Handle "Calculate My Risk" button
     const calculateRiskBtn = document.querySelector('.btn-hero-primary');
     if (calculateRiskBtn) {
-        calculateRiskBtn.addEventListener('click', function(e) {
+        calculateRiskBtn.addEventListener('click', function (e) {
             e.preventDefault();
             disableAllAudio();
             // Scroll to risk assessment section
@@ -139,15 +161,15 @@ document.addEventListener("DOMContentLoaded", function() {
             if (riskSection) {
                 const yOffset = -80;
                 const y = riskSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                window.scrollTo({top: y, behavior: 'smooth'});
+                window.scrollTo({ top: y, behavior: 'smooth' });
             }
         });
     }
-    
+
     // Handle "Start Assessment" button
     const startAssessmentBtns = document.querySelectorAll('.feature-btn');
     startAssessmentBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+        btn.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
             // If it's the risk assessment button (not GPS trigger or external link)
             if (href === '#' && !this.classList.contains('gps-trigger')) {
@@ -155,23 +177,23 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
-    
+
     // Monitor when risk assessment section comes into view
     const riskSection = document.getElementById('risk-section-feature');
     let riskSectionVisible = false;
     let aggressiveBlockInterval = null;
-    
+
     if (riskSection) {
-        const observer = new IntersectionObserver(function(entries) {
+        const observer = new IntersectionObserver(function (entries) {
             entries.forEach(entry => {
                 riskSectionVisible = entry.isIntersecting;
                 if (entry.isIntersecting) {
                     // Disable audio when risk section is visible
                     disableAllAudio();
-                    
+
                     // Aggressively block speech synthesis when risk section is visible
                     if ('speechSynthesis' in window && !aggressiveBlockInterval) {
-                        aggressiveBlockInterval = setInterval(function() {
+                        aggressiveBlockInterval = setInterval(function () {
                             if (riskSectionVisible) {
                                 window.speechSynthesis.cancel();
                                 // Try to prevent new speech
@@ -195,10 +217,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         }, { threshold: 0.1 });
-        
+
         observer.observe(riskSection);
     }
-    
+
     // Function to disable all audio (uses global function if available)
     function disableAllAudio() {
         // Use global audio blocker function if available
@@ -210,13 +232,13 @@ document.addEventListener("DOMContentLoaded", function() {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
-            
+
             // Mute all videos
             document.querySelectorAll('video').forEach(video => {
                 video.muted = true;
                 video.volume = 0;
             });
-            
+
             // Mute and pause all audio
             document.querySelectorAll('audio').forEach(audio => {
                 audio.muted = true;
@@ -233,40 +255,40 @@ document.addEventListener("DOMContentLoaded", function() {
     setInterval(() => {
         if (risk < 30) {
             risk++;
-            if(riskPercentEl) riskPercentEl.innerText = risk + "%";
-            if(progressBarEl) progressBarEl.style.width = risk + "%";
+            if (riskPercentEl) riskPercentEl.innerText = risk + "%";
+            if (progressBarEl) progressBarEl.style.width = risk + "%";
         }
     }, 3000);
 
     // ===== NAVBAR SMOOTH SCROLL =====
     document.querySelectorAll('nav a').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
             const id = this.getAttribute('id');
-            
+
             // Handle AskCervi link
             if (id === 'askcervi-link') {
                 e.preventDefault();
                 openChatbotModal();
                 return;
             }
-            
+
             // Handle Find Doctors link (GPS)
             if (id === 'find-doctors-link') {
                 e.preventDefault();
                 openGPSModal();
                 return;
             }
-            
+
             // Only prevent default for anchor links (starting with #)
             if (href && href.startsWith('#')) {
                 e.preventDefault();
                 const targetID = href.slice(1);
                 const target = document.getElementById(targetID);
-                if(target){
+                if (target) {
                     const yOffset = -80; // navbar height offset
                     const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                    window.scrollTo({top: y, behavior: 'smooth'});
+                    window.scrollTo({ top: y, behavior: 'smooth' });
                 }
             }
             // Allow normal navigation for external links (like protection.html)
@@ -277,7 +299,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const chatbotModal = document.getElementById('chatbot-modal');
     const chatbotTriggers = document.querySelectorAll('.chatbot-trigger');
     const chatbotIframe = document.getElementById('chatbot-iframe');
-    
+
     // Disable audio from chatbot iframe
     function disableChatbotAudio() {
         if (chatbotIframe) {
@@ -285,17 +307,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Try to access iframe content (will fail for cross-origin, but worth trying)
                 const iframeWindow = chatbotIframe.contentWindow;
                 const iframeDocument = chatbotIframe.contentDocument || (iframeWindow && iframeWindow.document);
-                
+
                 if (iframeDocument) {
                     // Mute all audio/video in iframe
-                    iframeDocument.querySelectorAll('video, audio').forEach(function(media) {
+                    iframeDocument.querySelectorAll('video, audio').forEach(function (media) {
                         media.muted = true;
                         media.volume = 0;
                         if (media.tagName === 'AUDIO') {
                             media.pause();
                         }
                     });
-                    
+
                     // Cancel speech synthesis in iframe
                     if (iframeWindow && 'speechSynthesis' in iframeWindow) {
                         iframeWindow.speechSynthesis.cancel();
@@ -306,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 // We cannot directly control cross-origin iframe content
             }
         }
-        
+
         // Also try to mute the iframe element itself (may not work for cross-origin)
         if (chatbotIframe && chatbotIframe.contentWindow) {
             try {
@@ -317,10 +339,10 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
-    
+
     // Monitor iframe load and try to disable audio
     if (chatbotIframe) {
-        chatbotIframe.addEventListener('load', function() {
+        chatbotIframe.addEventListener('load', function () {
             disableChatbotAudio();
             // Try multiple times as iframe content may load asynchronously
             setTimeout(disableChatbotAudio, 500);
@@ -328,21 +350,21 @@ document.addEventListener("DOMContentLoaded", function() {
             setTimeout(disableChatbotAudio, 2000);
         });
     }
-    
+
     function openChatbotModal() {
         if (chatbotModal) {
             chatbotModal.style.display = 'flex';
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
-            
+
             // Disable audio when modal opens (try multiple times as iframe may load asynchronously)
             disableChatbotAudio();
             setTimeout(disableChatbotAudio, 500);
             setTimeout(disableChatbotAudio, 1000);
             setTimeout(disableChatbotAudio, 2000);
             setTimeout(disableChatbotAudio, 3000);
-            
+
             // Continuously monitor and disable audio every 2 seconds while modal is open
-            const audioMonitor = setInterval(function() {
+            const audioMonitor = setInterval(function () {
                 if (chatbotModal.style.display === 'flex') {
                     disableChatbotAudio();
                 } else {
@@ -351,44 +373,44 @@ document.addEventListener("DOMContentLoaded", function() {
             }, 2000);
         }
     }
-    
+
     function closeChatbotModal() {
         if (chatbotModal) {
             chatbotModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
     }
-    
+
     // Add click listeners to chatbot triggers
     chatbotTriggers.forEach(trigger => {
-        trigger.addEventListener('click', function(e) {
+        trigger.addEventListener('click', function (e) {
             e.preventDefault();
             openChatbotModal();
         });
     });
-    
+
     // Add click listener to AskCervi nav link
     const askCerviLink = document.getElementById('askcervi-link');
     if (askCerviLink) {
-        askCerviLink.addEventListener('click', function(e) {
+        askCerviLink.addEventListener('click', function (e) {
             e.preventDefault();
             openChatbotModal();
         });
     }
-    
+
     // Add click listener to AI Analysis floating button
     const aiAnalysisBtn = document.getElementById('ai-analysis-btn');
     if (aiAnalysisBtn) {
-        aiAnalysisBtn.addEventListener('click', function(e) {
+        aiAnalysisBtn.addEventListener('click', function (e) {
             e.preventDefault();
             openChatbotModal();
         });
     }
-    
+
     // Close modal when clicking X
     const closeButtons = document.querySelectorAll('.close-modal');
     closeButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const modal = this.closest('.modal');
             if (modal) {
                 modal.style.display = 'none';
@@ -396,9 +418,9 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
-    
+
     // Close modal when clicking outside
-    window.addEventListener('click', function(e) {
+    window.addEventListener('click', function (e) {
         if (e.target.classList.contains('modal')) {
             e.target.style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -411,12 +433,12 @@ document.addEventListener("DOMContentLoaded", function() {
     let map;
     let userMarker;
     let userLocation = null;
-    
+
     function openGPSModal() {
         if (gpsModal) {
             gpsModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            
+
             // Initialize map if not already initialized
             if (!map && typeof L !== 'undefined') {
                 initMap();
@@ -430,78 +452,78 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
-    
+
     // Add click listeners to GPS triggers
     gpsTriggers.forEach(trigger => {
-        trigger.addEventListener('click', function(e) {
+        trigger.addEventListener('click', function (e) {
             e.preventDefault();
             openGPSModal();
         });
     });
-    
+
     // Initialize Map using Leaflet (OpenStreetMap - Free, no API key)
     function initMap() {
         const mapContainer = document.getElementById('map');
         if (!mapContainer) return;
-        
+
         // Default location (India center)
         const defaultLocation = [20.5937, 78.9629];
-        
+
         // Create map
         map = L.map('map').setView(defaultLocation, 12);
-        
+
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19
         }).addTo(map);
-        
+
         // Locate me button
         const locateBtn = document.getElementById('locate-me-btn');
         if (locateBtn) {
             locateBtn.addEventListener('click', getUserLocation);
         }
-        
+
         // Search hospitals button
         const searchBtn = document.getElementById('search-hospitals-btn');
         if (searchBtn) {
             searchBtn.addEventListener('click', searchNearbyHospitals);
         }
-        
+
         // Try to get user location on load
         getUserLocation();
     }
-    
+
     function getUserLocation() {
         const hospitalResults = document.getElementById('hospital-results');
         if (hospitalResults) {
             hospitalResults.innerHTML = '<p>Getting your location...</p>';
         }
-        
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                function(position) {
+                function (position) {
                     userLocation = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
-                    
+
                     // Center map on user location
                     if (map) {
                         map.setView([userLocation.lat, userLocation.lng], 15);
-                        
+
                         // Remove existing marker
                         if (userMarker) {
                             map.removeLayer(userMarker);
                         }
-                        
+
                         // Add user marker
                         userMarker = L.marker([userLocation.lat, userLocation.lng])
                             .addTo(map)
                             .bindPopup('📍 Your Location')
                             .openPopup();
                     }
-                    
+
                     // Show success message
                     if (hospitalResults) {
                         hospitalResults.innerHTML = `
@@ -517,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         `;
                     }
                 },
-                function(error) {
+                function (error) {
                     console.error('Error getting location:', error);
                     const errorMsg = error.message || 'Unable to get your location';
                     if (hospitalResults) {
@@ -550,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
-    
+
     function searchNearbyHospitals() {
         if (userLocation) {
             // If we have user location, redirect to Google Maps with search
@@ -560,7 +582,7 @@ document.addEventListener("DOMContentLoaded", function() {
             getUserLocation();
         }
     }
-    
+
     // Make initMap available globally
     window.initMap = initMap;
 

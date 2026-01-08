@@ -1,34 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Profile - CerviCare</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Montserrat Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="profile.css">
-    
+
     <!-- Comprehensive Audio Blocker -->
     <script>
-        (function() {
+        (function () {
             'use strict';
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const originalSpeak = window.speechSynthesis.speak;
-                window.speechSynthesis.speak = function() {
+                window.speechSynthesis.speak = function () {
                     window.speechSynthesis.cancel();
                     return false;
                 };
-                setInterval(function() {
+                setInterval(function () {
                     window.speechSynthesis.cancel();
                 }, 5);
             }
@@ -36,274 +38,294 @@
     </script>
     <script src="audio-blocker.js"></script>
 </head>
+
 <body>
 
-<!-- ===== HEADER ===== -->
-<header class="navbar">
-    <div class="logo">
-        <i class="fa-solid fa-heart-pulse"></i>
-        <span>CerviCare</span>
-    </div>
+    <!-- ===== HEADER ===== -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <span>CerviCare</span>
+        </div>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="protection.html">Protection Plan</a>
-        <a href="profile.html" class="active">Profile</a>
-        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    </nav>
-</header>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="protection.html">Protection Plan</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </header>
 
-<!-- ===== MAIN CONTENT ===== -->
-<main class="profile-container">
-    <div class="profile-header">
-        <div class="profile-avatar-section">
-            <div class="avatar-container">
-                <img id="profileImage" src="https://api.dicebear.com/7.x/avataaars/svg?seed=default" alt="Profile Avatar" class="profile-avatar">
-                <div class="avatar-overlay">
-                    <button id="changeAvatarBtn" class="avatar-change-btn">
-                        <i class="fas fa-camera"></i>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar-section">
+                <div class="avatar-container">
+                    <img id="profileImage" src="https://api.dicebear.com/7.x/avataaars/svg?seed=default"
+                        alt="Profile Avatar" class="profile-avatar">
+                    <div class="avatar-overlay">
+                        <button id="changeAvatarBtn" class="avatar-change-btn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-info">
+                <div class="username-wrapper"
+                    style="display: flex; align-items: center; gap: 12px; margin-bottom: 5px;">
+                    <h1 id="userName" style="margin: 0;">Loading...</h1>
+                    <input type="text" id="userNameInput" class="username-input"
+                        style="display: none; font-size: 1.5rem; padding: 5px; border-radius: 5px; border: none;">
+                    <button id="editUsernameBtn" class="edit-btn"
+                        style="background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 30px; height: 30px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+                        <i class="fas fa-pencil-alt" style="font-size: 14px;"></i>
+                    </button>
+                    <button id="saveUsernameBtn" class="save-btn"
+                        style="display: none; background: #2ecc71; border: none; border-radius: 5px; padding: 5px 12px; color: white; cursor: pointer; font-weight: 600;">
+                        Save
                     </button>
                 </div>
-            </div>
-            <div class="avatar-status">
-                <span id="avatarType" class="avatar-type-badge">Default</span>
-            </div>
-        </div>
-        
-        <div class="profile-info">
-            <h1 id="userName">Loading...</h1>
-            <p id="userEmail">loading@cervicare.com</p>
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <span class="stat-value" id="profileCompletion">0%</span>
-                    <span class="stat-label">Profile Complete</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value" id="memberSince">-</span>
-                    <span class="stat-label">Member Since</span>
+                <p id="userEmail" style="margin-top: 5px;">loading@cervicare.com</p>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="profileCompletion">0%</span>
+                        <span class="stat-label">Profile Complete</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="memberSince">-</span>
+                        <span class="stat-label">Member Since</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Avatar Management Modal -->
-    <div id="avatarModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Change Avatar</h2>
-                <button class="close-btn" id="closeAvatarModal">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="avatar-options">
-                    <!-- AI Generated Avatar -->
-                    <div class="avatar-option" id="aiAvatarOption">
-                        <div class="option-header">
-                            <i class="fas fa-magic"></i>
-                            <h3>AI Generated Avatar</h3>
-                        </div>
-                        <p>Generate a unique AI-powered avatar based on your preferences</p>
-                        <div class="ai-options">
-                            <select id="avatarStyle">
-                                <option value="avataaars">Avataaars</option>
-                                <option value="adventurer">Adventurer</option>
-                                <option value="bottts">Bottts (Robot)</option>
-                                <option value="lorelei">Lorelei</option>
-                                <option value="notionists">Notionists</option>
-                                <option value="personas">Personas</option>
-                            </select>
-                            <input type="text" id="avatarSeed" placeholder="Custom seed (optional)">
-                            <button id="generateAIAvatar" class="btn btn-primary">
-                                <i class="fas fa-magic"></i> Generate Avatar
-                            </button>
-                        </div>
-                    </div>
+        <!-- Avatar Management Modal -->
+        <div id="avatarModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Change Avatar</h2>
+                    <button class="close-btn" id="closeAvatarModal">&times;</button>
+                </div>
 
-                    <!-- Random Avatar -->
-                    <div class="avatar-option" id="randomAvatarOption">
-                        <div class="option-header">
-                            <i class="fas fa-dice"></i>
-                            <h3>Random Avatar</h3>
+                <div class="modal-body">
+                    <div class="avatar-options">
+                        <!-- AI Generated Avatar -->
+                        <div class="avatar-option" id="aiAvatarOption">
+                            <div class="option-header">
+                                <i class="fas fa-magic"></i>
+                                <h3>AI Generated Avatar</h3>
+                            </div>
+                            <p>Generate a unique AI-powered avatar based on your preferences</p>
+                            <div class="ai-options">
+                                <select id="avatarStyle">
+                                    <option value="avataaars">Avataaars</option>
+                                    <option value="adventurer">Adventurer</option>
+                                    <option value="bottts">Bottts (Robot)</option>
+                                    <option value="lorelei">Lorelei</option>
+                                    <option value="notionists">Notionists</option>
+                                    <option value="personas">Personas</option>
+                                </select>
+                                <input type="text" id="avatarSeed" placeholder="Custom seed (optional)">
+                                <button id="generateAIAvatar" class="btn btn-primary">
+                                    <i class="fas fa-magic"></i> Generate Avatar
+                                </button>
+                            </div>
                         </div>
-                        <p>Choose from our collection of pre-designed avatars</p>
-                        <div class="random-options">
-                            <select id="templateType">
-                                <option value="random_set">Random Collection</option>
-                                <option value="ai_style">AI Style</option>
-                            </select>
-                            <button id="getRandomAvatar" class="btn btn-secondary">
-                                <i class="fas fa-dice"></i> Get Random Avatar
-                            </button>
-                        </div>
-                    </div>
 
-                    <!-- Custom Upload -->
-                    <div class="avatar-option" id="customUploadOption">
-                        <div class="option-header">
-                            <i class="fas fa-upload"></i>
-                            <h3>Upload Custom Image</h3>
+                        <!-- Random Avatar -->
+                        <div class="avatar-option" id="randomAvatarOption">
+                            <div class="option-header">
+                                <i class="fas fa-dice"></i>
+                                <h3>Random Avatar</h3>
+                            </div>
+                            <p>Choose from our collection of pre-designed avatars</p>
+                            <div class="random-options">
+                                <select id="templateType">
+                                    <option value="random_set">Random Collection</option>
+                                    <option value="ai_style">AI Style</option>
+                                </select>
+                                <button id="getRandomAvatar" class="btn btn-secondary">
+                                    <i class="fas fa-dice"></i> Get Random Avatar
+                                </button>
+                            </div>
                         </div>
-                        <p>Upload your own profile picture</p>
-                        <div class="upload-options">
-                            <div class="file-upload" id="fileUploadArea">
-                                <input type="file" id="customImageInput" accept="image/jpeg,image/png,image/webp" hidden>
-                                <label for="customImageInput" class="upload-label">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Click to upload or drag and drop</span>
-                                    <small>JPG, PNG or WebP (MAX. 5MB)</small>
+
+                        <!-- Custom Upload -->
+                        <div class="avatar-option" id="customUploadOption">
+                            <div class="option-header">
+                                <i class="fas fa-upload"></i>
+                                <h3>Upload Custom Image</h3>
+                            </div>
+                            <p>Upload your own profile picture</p>
+                            <div class="upload-options">
+                                <label class="file-upload" id="fileUploadArea" for="customImageInput">
+                                    <input type="file" id="customImageInput" accept="image/jpeg,image/png,image/webp"
+                                        hidden>
+                                    <div class="upload-label">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Click to upload or drag and drop</span>
+                                        <small>JPG, PNG or WebP (MAX. 5MB)</small>
+                                    </div>
                                 </label>
-                            </div>
-                            <div id="uploadPreview" class="upload-preview hidden">
-                                <img id="previewImage" src="" alt="Preview">
-                                <button id="uploadImageBtn" class="btn btn-success">
-                                    <i class="fas fa-check"></i> Upload
-                                </button>
-                                <button id="cancelUploadBtn" class="btn btn-danger">
-                                    <i class="fas fa-times"></i> Cancel
-                                </button>
+                                <div class="upload-alternative">
+                                    <span>OR</span>
+                                    <button type="button" class="btn btn-secondary" id="browseFilesBtn">
+                                        <i class="fas fa-folder-open"></i> Browse Files
+                                    </button>
+                                </div>
+                                <div id="uploadPreview" class="upload-preview hidden">
+                                    <img id="previewImage" src="" alt="Preview">
+                                    <button id="uploadImageBtn" class="btn btn-success">
+                                        <i class="fas fa-check"></i> Upload
+                                    </button>
+                                    <button id="cancelUploadBtn" class="btn btn-danger">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Profile Form -->
-    <div class="profile-form-section">
-        <h2>Personal Information</h2>
-        <form id="profileForm" class="profile-form">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" name="age" min="18" max="120" required>
+        <!-- Profile Form -->
+        <div class="profile-form-section">
+            <h2>Personal Information</h2>
+            <form id="profileForm" class="profile-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" min="18" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="gender">Gender</label>
-                    <select id="gender" name="gender" required>
-                        <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="city">City</label>
-                    <input type="text" id="city" name="city" placeholder="Enter your city" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" placeholder="Enter your city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+1234567890">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" placeholder="+1234567890">
-                </div>
-            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="dietType">Diet Type</label>
-                    <select id="dietType" name="diet_type" required>
-                        <option value="">Select Diet Type</option>
-                        <option value="veg">Vegetarian</option>
-                        <option value="nonveg">Non-Vegetarian</option>
-                        <option value="vegan">Vegan</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dietType">Diet Type</label>
+                        <select id="dietType" name="diet_type" required>
+                            <option value="">Select Diet Type</option>
+                            <option value="veg">Vegetarian</option>
+                            <option value="nonveg">Non-Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="budgetLevel">Budget Level</label>
+                        <select id="budgetLevel" name="budget_level" required>
+                            <option value="">Select Budget Level</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="budgetLevel">Budget Level</label>
-                    <select id="budgetLevel" name="budget_level" required>
-                        <option value="">Select Budget Level</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="lifestyle">Lifestyle</label>
-                    <select id="lifestyle" name="lifestyle" required>
-                        <option value="">Select Lifestyle</option>
-                        <option value="sedentary">Sedentary</option>
-                        <option value="moderately_active">Moderately Active</option>
-                        <option value="active">Active</option>
-                    </select>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lifestyle">Lifestyle</label>
+                        <select id="lifestyle" name="lifestyle" required>
+                            <option value="">Select Lifestyle</option>
+                            <option value="sedentary">Sedentary</option>
+                            <option value="moderately_active">Moderately Active</option>
+                            <option value="active">Active</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <div class="consent-section">
-                <h3>Communication Preferences</h3>
-                <div class="consent-options">
-                    <label class="consent-item">
-                        <input type="checkbox" id="whatsappConsent" name="whatsapp_consent">
-                        <span class="checkmark"></span>
-                        <div class="consent-content">
-                            <strong>WhatsApp Updates</strong>
-                            <p>Receive health tips and reminders via WhatsApp</p>
-                        </div>
-                    </label>
-                    
-                    <label class="consent-item">
-                        <input type="checkbox" id="marketingConsent" name="marketing_consent">
-                        <span class="checkmark"></span>
-                        <div class="consent-content">
-                            <strong>Marketing Communications</strong>
-                            <p>Receive updates about new features and offers</p>
-                        </div>
-                    </label>
+                <div class="consent-section">
+                    <h3>Communication Preferences</h3>
+                    <div class="consent-options">
+                        <label class="consent-item">
+                            <input type="checkbox" id="whatsappConsent" name="whatsapp_consent">
+                            <span class="checkmark"></span>
+                            <div class="consent-content">
+                                <strong>WhatsApp Updates</strong>
+                                <p>Receive health tips and reminders via WhatsApp</p>
+                            </div>
+                        </label>
+
+                        <label class="consent-item">
+                            <input type="checkbox" id="marketingConsent" name="marketing_consent">
+                            <span class="checkmark"></span>
+                            <div class="consent-content">
+                                <strong>Marketing Communications</strong>
+                                <p>Receive updates about new features and offers</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Profile
-                </button>
-                <button type="button" id="resetBtn" class="btn btn-secondary">
-                    <i class="fas fa-undo"></i> Reset
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Profile History -->
-    <div class="profile-history-section">
-        <h2>Recent Activity</h2>
-        <div id="activityHistory" class="activity-list">
-            <div class="activity-item">
-                <i class="fas fa-user-plus"></i>
-                <div class="activity-content">
-                    <strong>Account Created</strong>
-                    <p>Welcome to CerviCare!</p>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Profile
+                    </button>
+                    <button type="button" id="resetBtn" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
                 </div>
-                <span class="activity-time">Just now</span>
+            </form>
+        </div>
+
+        <!-- Profile History -->
+        <div class="profile-history-section">
+            <h2>Recent Activity</h2>
+            <div id="activityHistory" class="activity-list">
+                <div class="activity-item">
+                    <i class="fas fa-user-plus"></i>
+                    <div class="activity-content">
+                        <strong>Account Created</strong>
+                        <p>Welcome to CerviCare!</p>
+                    </div>
+                    <span class="activity-time">Just now</span>
+                </div>
             </div>
         </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
     </div>
-</main>
 
-<!-- Loading Overlay -->
-<div id="loadingOverlay" class="loading-overlay hidden">
-    <div class="loading-spinner">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Loading...</p>
+    <!-- Success Toast -->
+    <div id="successToast" class="toast success hidden">
+        <i class="fas fa-check-circle"></i>
+        <span id="successMessage">Success!</span>
     </div>
-</div>
 
-<!-- Success Toast -->
-<div id="successToast" class="toast success hidden">
-    <i class="fas fa-check-circle"></i>
-    <span id="successMessage">Success!</span>
-</div>
+    <!-- Error Toast -->
+    <div id="errorToast" class="toast error hidden">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorMessage">Error occurred!</span>
+    </div>
 
-<!-- Error Toast -->
-<div id="errorToast" class="toast error hidden">
-    <i class="fas fa-exclamation-circle"></i>
-    <span id="errorMessage">Error occurred!</span>
-</div>
-
-<!-- JavaScript -->
-<script src="profile.js"></script>
+    <!-- JavaScript -->
+    <script src="profile.js"></script>
 </body>
+
 </html>

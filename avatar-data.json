@@ -1,0 +1,15 @@
+[
+  {
+    "userId": "1",
+    "avatar_type": "random",
+    "display_image_url": "https://api.dicebear.com/7.x/notionists/svg?seed=1767729257892",
+    "createdAt": "2026-01-06T19:35:57.256Z",
+    "updatedAt": "2026-01-06T19:54:17.892Z"
+  },
+  {
+    "userId": "1767809905519",
+    "avatar_type": "random",
+    "display_image_url": "https://api.dicebear.com/7.x/bottts/svg?seed=1767809936962",
+    "createdAt": "2026-01-07T18:18:56.962Z"
+  }
+]
