@@ -132,6 +132,43 @@ class PersonalizationController {
       });
     }
   }
+
+  // Legacy Compatibility: Match root server.js format
+  static async getLegacyProtectionPlan(req, res) {
+    try {
+      const userId = req.params.userId || req.user?.id;
+      const profile = await UserProfile.findByUserId(userId);
+
+      // Default data if no profile yet
+      const score = profile ? (profile.age > 40 ? 65 : 45) : 45;
+
+      const data = {
+        userId,
+        score,
+        plans: [
+          {
+            id: 'plan-1',
+            title: 'Annual Screening Schedule',
+            description: 'Regular PAP smears and HPV tests are your first line of defense.',
+            status: 'not-started',
+            priority: 'high',
+            duration: '12 months',
+            steps: [
+              { title: 'Schedule Consultation', note: 'Book appointment with a gynecologist', frequency: 'Once' },
+              { title: 'Complete PAP Smear', note: 'Standard diagnostic test', frequency: 'Every 3 years' }
+            ],
+            notes: ''
+          }
+        ],
+        updatedAt: new Date().toISOString()
+      };
+
+      res.json({ success: true, data });
+    } catch (error) {
+      console.error('Legacy protection plan error:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  }
 }
 
 module.exports = PersonalizationController;

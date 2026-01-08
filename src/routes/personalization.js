@@ -13,4 +13,10 @@ router.get('/diet-plan', PersonalizationController.getDietPlan);
 // GET /protection-plan - Get personalized protection plan
 router.get('/protection-plan', PersonalizationController.getProtectionPlan);
 
+// Legacy Compatibility: GET /protection/:userId
+router.get('/protection/:userId', PersonalizationController.getLegacyProtectionPlan);
+
+// Legacy Compatibility: POST /protection/plans/update
+router.post('/protection/plans/update', PersonalizationController.getLegacyProtectionPlan); // Reusing for now or could add specific update logic
+
 module.exports = router;

@@ -36,6 +36,7 @@ router.post('/upload', upload.single('image'), AvatarController.uploadCustomImag
 
 // Avatar management
 router.get('/current', AvatarController.getUserAvatar);
+router.get('/current/:userId', AvatarController.getUserAvatar);
 router.delete('/current', AvatarController.deleteCurrentAvatar);
 router.put('/preferences', AvatarController.updateAvatarPreferences);
 

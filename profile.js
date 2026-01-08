@@ -171,9 +171,15 @@ class ProfileManager {
                 }
             });
 
-            if (userResponse.ok) {
+            if (userResponse.status === 404) {
+                console.log('Profile not found (404), continuing with default info.');
+            } else if (!userResponse.ok) {
+                throw new Error(`Server error: ${userResponse.status}`);
+            } else {
                 const userData = await userResponse.json();
-                this.currentUser.profile = userData?.data?.profile || null;
+                if (userData && userData.data && userData.data.profile) {
+                    this.currentUser.profile = userData.data.profile;
+                }
             }
 
             // Load avatar data
@@ -186,14 +192,19 @@ class ProfileManager {
             // Load activity history
             await this.loadActivityHistory();
 
+            console.log('✅ Profile page loaded successfully');
+
         } catch (error) {
             console.error('Error loading profile:', error);
             // Don't show error if it's just a 404 (new user with no profile yet)
-            if (!error.message.includes('404')) {
+            if (error && error.message && !error.message.includes('404')) {
                 this.showError('Failed to load profile details');
             }
+
             // Still update UI with basic info from localStorage
-            this.updateProfileUI();
+            if (this.currentUser) {
+                this.updateProfileUI();
+            }
         } finally {
             this.hideLoading();
         }
@@ -229,46 +240,53 @@ class ProfileManager {
         if (!this.currentUser) return;
 
         // Update user info
-        const display_name = this.currentUser.firstName ? `${this.currentUser.firstName} ${this.currentUser.lastName || ''}`.trim() : this.currentUser.email.split('@')[0];
+        const display_name = this.currentUser.firstName ? `${this.currentUser.firstName} ${this.currentUser.lastName || ''}`.trim() : (this.currentUser.email ? this.currentUser.email.split('@')[0] : 'User');
         this.userName.textContent = display_name;
-        this.userEmail.textContent = this.currentUser.email;
+        this.userEmail.textContent = this.currentUser.email || 'No email provided';
 
         // Update member since date
         const creationDate = this.currentUser.createdAt || this.currentUser.created_at || new Date().toISOString();
-        const year = new Date(creationDate).getFullYear();
+        const year = new Date(creationDate).getFullYear() || new Date().getFullYear();
         this.memberSince.textContent = year;
 
         // Update profile completion
-        const completion = this.calculateProfileCompletion();
-        this.profileCompletion.textContent = `${completion}%`;
+        if (this.profileCompletion) {
+            const completion = this.calculateProfileCompletion();
+            this.profileCompletion.textContent = `${completion}%`;
+        }
 
         // Update form fields if profile data exists
         if (this.currentUser.profile) {
             this.populateForm(this.currentUser.profile);
         }
+
+        console.log('✅ Profile UI updated successfully');
     }
 
     updateAvatarUI() {
         if (!this.avatarData) return;
 
         // Update profile image
-        this.profileImage.src = this.avatarData.display_image_url;
+        if (this.profileImage) {
+            this.profileImage.src = this.avatarData.display_image_url;
+        }
 
         // Update avatar type badge
-        const typeText = this.avatarData.avatar_type?.replace('_', ' ') || 'Default';
-        this.avatarType.textContent = typeText.charAt(0).toUpperCase() + typeText.slice(1);
+        if (this.avatarType) {
+            const typeText = this.avatarData.avatar_type?.replace('_', ' ') || 'Default';
+            this.avatarType.textContent = typeText.charAt(0).toUpperCase() + typeText.slice(1);
 
-        // Update badge color based on type
-        this.avatarType.className = 'avatar-type-badge';
-        if (this.avatarData.avatar_type === 'ai_generated') {
-            this.avatarType.style.background = '#e6f3ff';
-            this.avatarType.style.color = '#0066cc';
-        } else if (this.avatarData.avatar_type === 'custom_upload') {
-            this.avatarType.style.background = '#e6ffe6';
-            this.avatarType.style.color = '#006600';
-        } else if (this.avatarData.avatar_type === 'random') {
-            this.avatarType.style.background = '#fff0e6';
-            this.avatarType.style.color = '#cc6600';
+            this.avatarType.className = 'avatar-type-badge';
+            if (this.avatarData.avatar_type === 'ai_generated') {
+                this.avatarType.style.background = '#e6f3ff';
+                this.avatarType.style.color = '#0066cc';
+            } else if (this.avatarData.avatar_type === 'custom_upload') {
+                this.avatarType.style.background = '#e6ffe6';
+                this.avatarType.style.color = '#006600';
+            } else if (this.avatarData.avatar_type === 'random') {
+                this.avatarType.style.background = '#fff0e6';
+                this.avatarType.style.color = '#cc6600';
+            }
         }
     }
 

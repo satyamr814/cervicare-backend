@@ -201,82 +201,63 @@
                     </button>
                 </div>
 
-                <!-- Simulation Controls (Localhost Only) -->
-                <div
-                    style="margin-top: 20px; padding: 10px; border: 1px dashed rgba(255,255,255,0.3); border-radius: 8px;">
-                    <small style="color: #eee; display: block; margin-bottom: 5px;">🤖 Test Bot Integration
-                        (Localhost):</small>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="protection.html?risk=85"
-                            style="font-size: 12px; padding: 5px 10px; background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; border-radius: 4px; text-decoration: none;">High
-                            Risk (85%)</a>
-                        <a href="protection.html?risk=45"
-                            style="font-size: 12px; padding: 5px 10px; background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid #f59e0b; border-radius: 4px; text-decoration: none;">Medium
-                            Risk (45%)</a>
-                        <a href="protection.html?risk=10"
-                            style="font-size: 12px; padding: 5px 10px; background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid #22c55e; border-radius: 4px; text-decoration: none;">Low
-                            Risk (10%)</a>
-                        <a href="protection.html?risk=75&smoke=10&age=48&contra=Yes"
-                            style="font-size: 12px; padding: 5px 10px; background: rgba(147, 51, 234, 0.2); color: #d8b4fe; border: 1px solid #9333ea; border-radius: 4px; text-decoration: none;">🧪
-                            Custom Plan (Smoker + Age)</a>
-                    </div>
-                </div>
             </div>
+        </div>
 
-            <!-- RIGHT CARD -->
-            <div class="hero-right">
-                <div class="hero-risk-card">
-                    <div class="card-header">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <h3>Risk Assessment Preview</h3>
+        <!-- RIGHT CARD -->
+        <div class="hero-right">
+            <div class="hero-risk-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <h3>Risk Assessment Preview</h3>
+                </div>
+
+                <!-- Risk Level -->
+                <div class="risk-box orange">
+                    <div class="risk-header">
+                        <span>Current Risk Level</span>
+                        <strong>24%</strong>
                     </div>
-
-                    <!-- Risk Level -->
-                    <div class="risk-box orange">
-                        <div class="risk-header">
-                            <span>Current Risk Level</span>
-                            <strong>24%</strong>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar" style="width:24%"></div>
-                        </div>
-                        <small>Moderate Risk – Action Recommended</small>
+                    <div class="progress">
+                        <div class="progress-bar" style="width:24%"></div>
                     </div>
+                    <small>Moderate Risk – Action Recommended</small>
+                </div>
 
-                    <!-- Risk Reduction -->
-                    <div class="risk-box green">
-                        <div class="risk-header">
-                            <span>Potential Risk Reduction</span>
-                            <strong>12%</strong>
-                        </div>
-                        <div class="progress">
-                            <div class="progress-bar green-bar" style="width:12%"></div>
-                        </div>
-                        <small>With Personalized Care Plan</small>
+                <!-- Risk Reduction -->
+                <div class="risk-box green">
+                    <div class="risk-header">
+                        <span>Potential Risk Reduction</span>
+                        <strong>12%</strong>
                     </div>
+                    <div class="progress">
+                        <div class="progress-bar green-bar" style="width:12%"></div>
+                    </div>
+                    <small>With Personalized Care Plan</small>
+                </div>
 
-                    <!-- Key Factors -->
-                    <div class="risk-box blue">
-                        <div class="risk-header">
-                            <span>Key Risk Factors</span>
+                <!-- Key Factors -->
+                <div class="risk-box blue">
+                    <div class="risk-header">
+                        <span>Key Risk Factors</span>
+                    </div>
+                    <div class="risk-factors">
+                        <div class="factor">
+                            <span>Lifestyle</span>
+                            <span class="impact high">High Impact</span>
                         </div>
-                        <div class="risk-factors">
-                            <div class="factor">
-                                <span>Lifestyle</span>
-                                <span class="impact high">High Impact</span>
-                            </div>
-                            <div class="factor">
-                                <span>HPV Infection</span>
-                                <span class="impact medium">Medium Impact</span>
-                            </div>
-                            <div class="factor">
-                                <span>Screening History</span>
-                                <span class="impact low">Low Impact</span>
-                            </div>
+                        <div class="factor">
+                            <span>HPV Infection</span>
+                            <span class="impact medium">Medium Impact</span>
+                        </div>
+                        <div class="factor">
+                            <span>Screening History</span>
+                            <span class="impact low">Low Impact</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
     <!-- ===== OUR FEATURES SECTION ===== -->

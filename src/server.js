@@ -137,29 +137,39 @@ app.use('*', (req, res) => {
 app.use(ProductionMiddleware.globalErrorHandler);
 
 // Start server
-app.listen(PORT, async () => {
-  console.log(`🚀 CerviCare Backend Server is running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
-  console.log(`👤 Profile endpoints: http://localhost:${PORT}/api/profile`);
-  console.log(`🎯 Personalization endpoints: http://localhost:${PORT}/api`);
-  console.log(`🛡️ Admin endpoints: http://localhost:${PORT}/api/admin`);
-  console.log(`🔗 Webhook endpoints: http://localhost:${PORT}/api/webhook`);
-  console.log(`📊 Analytics endpoints: http://localhost:${PORT}/api/analytics`);
-  console.log(`👤 Avatar endpoints: http://localhost:${PORT}/api/avatar`);
-  console.log(`🤖 Bot data endpoints: http://localhost:${PORT}/api/bot-data`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  
-  // Initialize Phase 3 services
-  await googleSheetsService.initialize();
-  await sheetsSyncService.initialize();
-  
-  // Start background processing
-  sheetsSyncService.startBackgroundProcessing();
-  
-  console.log('✅ Phase 3 services initialized successfully');
-  console.log('🚀 Phase 4 production hardening enabled');
-});
+const startServer = async () => {
+  try {
+    // 1. Validate Environment
+    const requiredVars = ['DATABASE_URL', 'JWT_SECRET'];
+    const missing = requiredVars.filter(v => !process.env[v]);
+    if (missing.length > 0) {
+      console.error(`❌ Missing environment variables: ${missing.join(', ')}`);
+      if (process.env.NODE_ENV === 'production') process.exit(1);
+    }
+
+    // 2. Initialize Database & Seed
+    const seederService = require('./services/seederService');
+    await seederService.seed();
+
+    // 3. Initialize Phase 3 services
+    await googleSheetsService.initialize();
+    await sheetsSyncService.initialize();
+
+    // 4. Start background processing
+    sheetsSyncService.startBackgroundProcessing();
+
+    app.listen(PORT, () => {
+      console.log(`🚀 CerviCare Backend Server is running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log('✅ Services initialized successfully');
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
