@@ -294,7 +294,8 @@
                     <h3>Health Insights</h3>
                     <p>Get tailored preventive tips and AI-driven insights to stay informed about your cervical
                         well-being.</p>
-                    <a href="#" class="feature-btn">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="#" class="feature-btn health-insights-trigger">Learn More <i
+                            class="fa-solid fa-arrow-right"></i></a>
                 </div>
 
                 <div class="feature-box" id="protection-section">
@@ -607,8 +608,369 @@
         </div>
     </div>
 
+    <!-- ===== HEALTH INSIGHTS MODAL ===== -->
+    <div id="health-modal" class="modal">
+        <div class="modal-content health-modal-content">
+            <div class="modal-header">
+                <h2>Health Insights Dashboard</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- TABS NAVIGATION -->
+                <div class="health-tabs">
+                    <button class="tab-btn active" data-tab="risk-tab">Risk Assessment</button>
+                    <button class="tab-btn" data-tab="nutrition-tab">Nutrition & Diet</button>
+                    <button class="tab-btn" data-tab="prevention-tab">Prevention Tips</button>
+                </div>
+
+                <!-- TABS CONTENT -->
+                <div class="health-tab-content">
+
+                    <!-- TAB 1: RISK ASSESSMENT -->
+                    <div id="risk-tab" class="tab-pane active">
+                        <div class="risk-gauge-container">
+                            <div class="gauge-wrapper">
+                                <svg class="risk-gauge-svg" viewBox="0 0 100 50">
+                                    <path d="M 10 50 A 40 40 0 1 1 90 50" class="gauge-bg" />
+                                    <path d="M 10 50 A 40 40 0 1 1 90 50" class="gauge-fill" id="gauge-fill" />
+                                </svg>
+                                <div class="gauge-value">
+                                    <span id="risk-value-text">0%</span>
+                                    <small id="risk-level-text">Low Risk</small>
+                                </div>
+                            </div>
+                            <div class="risk-legend">
+                                <span class="legend-item"><span class="dot green"></span> Low (0-25%)</span>
+                                <span class="legend-item"><span class="dot yellow"></span> Mod (26-50%)</span>
+                                <span class="legend-item"><span class="dot orange"></span> High (51-75%)</span>
+                                <span class="legend-item"><span class="dot red"></span> Severe (76-100%)</span>
+                            </div>
+                        </div>
+
+                        <div class="risk-explanation">
+                            <h3>Understanding Your Score</h3>
+                            <p id="risk-desc">
+                                Your risk score is calculated based on factors like screening history, lifestyle, and
+                                symptoms.
+                                A lower score indicates a healthier profile, while a higher score suggests you should
+                                consult a doctor.
+                            </p>
+                            <div class="action-buttons-center">
+                                <a href="#risk-section-feature" class="btn-primary"
+                                    onclick="document.getElementById('health-modal').style.display='none'">
+                                    Take Full Assessment
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: NUTRITION -->
+                    <div id="nutrition-tab" class="tab-pane">
+                        <!-- DIET PLAN FORM -->
+                        <div id="diet-form-container">
+                            <h3 class="form-title">Customize Your Meal Plan</h3>
+
+                            <form id="diet-plan-form">
+                                <div class="form-group">
+                                    <label for="budget-select">Monthly Budget <span class="required">*</span></label>
+                                    <select id="budget-select" required>
+                                        <option value="">Select Budget</option>
+                                        <option value="economical">Economical (₹2000-4000/month)</option>
+                                        <option value="midrange">Mid-Range (₹4000-8000/month)</option>
+                                        <option value="premium">Premium (₹8000+/month)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="diet-select">Dietary Preference <span class="required">*</span></label>
+                                    <select id="diet-select" required>
+                                        <option value="">Select Diet Type</option>
+                                        <option value="vegetarian">Vegetarian</option>
+                                        <option value="nonvegetarian">Non-Vegetarian</option>
+                                        <option value="vegan">Vegan</option>
+                                        <option value="eggetarian">Eggetarian</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="lifestyle-select">Lifestyle (Optional)</label>
+                                    <select id="lifestyle-select">
+                                        <option value="">Select Lifestyle</option>
+                                        <option value="sedentary">Sedentary (Desk job)</option>
+                                        <option value="moderate">Moderately Active</option>
+                                        <option value="active">Very Active</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Health Goals</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="goals" value="weight"> Weight Management
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="goals" value="immunity"> Immunity Boost
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="goals" value="energy"> Increased Energy
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="goals" value="wellness"> General Wellness
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn-primary">Generate My Plan</button>
+                            </form>
+                        </div>
+
+                        <!-- DIET PLAN RESULTS (Hidden by default) -->
+                        <div id="diet-plan-results" style="display: none;">
+                            <div class="results-header">
+                                <h3>Your Personalized 7-Day Meal Plan</h3>
+                                <button id="back-to-form-btn" class="btn-secondary-small">← Edit Preferences</button>
+                            </div>
+
+                            <!-- SOCIAL SHARE BUTTONS -->
+                            <div class="social-share-buttons" role="group" aria-label="Share meal plan">
+                                <button class="share-btn whatsapp" onclick="sharePlan('whatsapp')"
+                                    aria-label="Share on WhatsApp">
+                                    <i class="fa-brands fa-whatsapp"></i> Share
+                                </button>
+                                <button class="share-btn download" onclick="downloadPlan()"
+                                    aria-label="Download as PDF">
+                                    <i class="fa-solid fa-download"></i> Download
+                                </button>
+                                <button class="share-btn print" onclick="window.print()" aria-label="Print meal plan">
+                                    <i class="fa-solid fa-print"></i> Print
+                                </button>
+                                <button class="share-btn save" onclick="saveFavorite()" aria-label="Save to favorites">
+                                    <i class="fa-solid fa-heart"></i> Save
+                                </button>
+                            </div>
+
+                            <div id="meal-plan-grid" role="region" aria-label="Weekly meal plan"></div>
+
+                            <div id="shopping-list-section">
+                                <h3>Weekly Shopping List</h3>
+                                <ul id="shopping-list" role="list"></ul>
+                            </div>
+
+                            <!-- DELHI NCR TESTIMONIALS -->
+                            <div class="testimonials-section">
+                                <h3>💚 Success Stories from Delhi NCR</h3>
+                                <div class="testimonial-card">
+                                    <blockquote>"Following this meal plan for 3 months has improved my energy levels.
+                                        The local market tips saved me so much money!"</blockquote>
+                                    <p class="testimonial-author">- Priya Sharma</p>
+                                    <p class="testimonial-location">Dwarka, New Delhi</p>
+                                </div>
+                                <div class="testimonial-card">
+                                    <blockquote>"As a working professional, the quick recipes were perfect. Lost 5kg and
+                                        feeling healthier!"</blockquote>
+                                    <p class="testimonial-author">- Anita Verma</p>
+                                    <p class="testimonial-location">Gurgaon, NCR</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: PREVENTION -->
+                    <div id="prevention-tab" class="tab-pane">
+                        <!-- RISK-LEVEL SPECIFIC ADVICE -->
+                        <div class="risk-advice-section" id="prevention-risk-advice">
+                            <h3 class="advice-title">Your Personalized Prevention Plan</h3>
+                            <p class="advice-subtitle">Based on your risk level, here's what you should focus on:</p>
+
+                            <!-- Content changes based on risk level - populated by JS -->
+                            <div class="risk-advice-content">
+                                <div class="advice-card">
+                                    <i class="fa-solid fa-shield-check"></i>
+                                    <div>
+                                        <h4>Maintain Your Health</h4>
+                                        <p>Continue regular screenings and healthy lifestyle to keep your low risk
+                                            status.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- INTERACTIVE CHECKLIST -->
+                        <div class="prevention-checklist-section">
+                            <h3>Your Prevention Checklist</h3>
+                            <p class="checklist-subtitle">Track your preventive care activities</p>
+
+                            <div class="checklist-container">
+                                <label class="checklist-item">
+                                    <input type="checkbox" id="check-screening" onchange="saveChecklistProgress()">
+                                    <span class="checkmark"></span>
+                                    <div class="check-content">
+                                        <strong>Regular Screening</strong>
+                                        <small>PAP Smear every 3 years (21-29) or HPV test every 5 years (30-65)</small>
+                                    </div>
+                                </label>
+
+                                <label class="checklist-item">
+                                    <input type="checkbox" id="check-vaccination" onchange="saveChecklistProgress()">
+                                    <span class="checkmark"></span>
+                                    <div class="check-content">
+                                        <strong>HPV Vaccination</strong>
+                                        <small>Recommended before age 26, beneficial up to age 45</small>
+                                    </div>
+                                </label>
+
+                                <label class="checklist-item">
+                                    <input type="checkbox" id="check-diet" onchange="saveChecklistProgress()">
+                                    <span class="checkmark"></span>
+                                    <div class="check-content">
+                                        <strong>Healthy Diet Plan</strong>
+                                        <small>Follow anti-cancer diet with plenty of vegetables and fruits</small>
+                                    </div>
+                                </label>
+
+                                <label class="checklist-item">
+                                    <input type="checkbox" id="check-exercise" onchange="saveChecklistProgress()">
+                                    <span class="checkmark"></span>
+                                    <div class="check-content">
+                                        <strong>Regular Exercise</strong>
+                                        <small>At least 30 minutes of moderate activity, 5 days a week</small>
+                                    </div>
+                                </label>
+
+                                <label class="checklist-item">
+                                    <input type="checkbox" id="check-smoking" onchange="saveChecklistProgress()">
+                                    <span class="checkmark"></span>
+                                    <div class="check-content">
+                                        <strong>Quit Smoking</strong>
+                                        <small>Smoking weakens immunity and increases HPV infection risk</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- DELHI NCR RESOURCES -->
+                        <div class="local-resources-section">
+                            <h3>🏥 Delhi NCR Health Resources</h3>
+
+                            <div class="resource-category">
+                                <h4>Government Hospitals (Free Screenings)</h4>
+                                <ul class="resource-list">
+                                    <li>
+                                        <strong>AIIMS Delhi</strong>
+                                        <small>Ansari Nagar, New Delhi | Ph: 011-26588500</small>
+                                    </li>
+                                    <li>
+                                        <strong>Safdarjung Hospital</strong>
+                                        <small>Ring Road, New Delhi | Ph: 011-26165060</small>
+                                    </li>
+                                    <li>
+                                        <strong>GTB Hospital</strong>
+                                        <small>Dilshad Garden, Delhi | Ph: 011-22582000</small>
+                                    </li>
+                                    <li>
+                                        <strong>Lok Nayak Hospital</strong>
+                                        <small>JLN Marg, Delhi Gate | Ph: 011-23232960</small>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="resource-category">
+                                <h4>NGOs & Support Organizations</h4>
+                                <ul class="resource-list">
+                                    <li>
+                                        <strong>CanSupport</strong>
+                                        <small>Free palliative care | Ph: 011-41010539</small>
+                                    </li>
+                                    <li>
+                                        <strong>Cankids...KidsCan</strong>
+                                        <small>Cancer support for families | Ph: 011-41031301</small>
+                                    </li>
+                                    <li>
+                                        <strong>Indian Cancer Society</strong>
+                                        <small>Awareness & screening camps</small>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="resource-category">
+                                <h4>Certified Nutritionists in Delhi NCR</h4>
+                                <ul class="resource-list">
+                                    <li>
+                                        <strong>Dietitian Clinics at AIIMS</strong>
+                                        <small>Oncology nutrition counseling</small>
+                                    </li>
+                                    <li>
+                                        <strong>Apollo Hospital Nutrition Dept</strong>
+                                        <small>Sarita Vihar, Delhi</small>
+                                    </li>
+                                    <li>
+                                        <strong>Consult via CerviCare</strong>
+                                        <small>Connect with verified nutritionists through our platform</small>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- PROGRESS TRACKING WIDGETS -->
+                        <div class="progress-tracking-section">
+                            <h3>📊 Track Your Progress</h3>
+
+                            <div class="tracking-widgets">
+                                <div class="widget-card">
+                                    <div class="widget-icon">🥗</div>
+                                    <div class="widget-content">
+                                        <h4>Healthy Eating Streak</h4>
+                                        <div class="widget-value" id="healthy-days-count">0 days</div>
+                                        <small>Days since last junk food</small>
+                                        <button class="widget-btn" onclick="resetCounter('healthy-days')">Reset</button>
+                                    </div>
+                                </div>
+
+                                <div class="widget-card">
+                                    <div class="widget-icon">🥦</div>
+                                    <div class="widget-content">
+                                        <h4>Weekly Vegetables</h4>
+                                        <div class="widget-value" id="veggie-count">0/7 servings</div>
+                                        <small>Target: 7 servings/week</small>
+                                        <button class="widget-btn" onclick="incrementCounter('veggie')">+1
+                                            Serving</button>
+                                    </div>
+                                </div>
+
+                                <div class="widget-card">
+                                    <div class="widget-icon">💧</div>
+                                    <div class="widget-content">
+                                        <h4>Water Intake Today</h4>
+                                        <div class="widget-value" id="water-count">0/8 glasses</div>
+                                        <small>Target: 8 glasses/day</small>
+                                        <button class="widget-btn" onclick="incrementCounter('water')">+1 Glass</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Leaflet JavaScript (OpenStreetMap - Free, no API key needed) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loading-overlay" role="status" aria-live="polite">
+        <div style="text-align: center;">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <p class="loading-text">Generating your personalized meal plan...</p>
+            <span class="sr-only">Loading, please wait</span>
+        </div>
+    </div>
+
+    <!-- SUCCESS NOTIFICATION -->
+    <div class="success-notification" id="success-notification" role="alert" aria-live="assertive">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        <span id="success-message">Plan generated successfully!</span>
+    </div>
 
     <script src="script.js"></script>
 </body>
