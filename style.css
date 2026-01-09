@@ -1553,7 +1553,35 @@ nav a:hover {
     }
 }
 
-/* Responsive Design */
+/* Risk Assessment Preview - ENSURE VISIBILITY */
+#risk-section-feature,
+.risk-assessment-preview,
+.risk-assessment-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 10;
+}
+
+/* Ensure all risk assessment child elements are visible */
+#risk-section-feature * {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Override any modal/hidden classes that might apply */
+#risk-section-feature.hidden,
+#risk-section-feature.modal {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* ===== RESPONSIVE DESIGN */
 @media (max-width: 1024px) {
     .hero-container {
         flex-direction: column;

@@ -77,7 +77,7 @@ class AuthController {
         });
       }
 
-      // Validate password
+      // Validate password using bcrypt comparison (NOT plain text)
       const isValidPassword = await User.validatePassword(password, user.password_hash);
       if (!isValidPassword) {
         return res.status(401).json({
@@ -87,7 +87,10 @@ class AuthController {
       }
 
       // Generate JWT token
-      const token = generateToken({ userId: user.id });
+      const token = generateToken({ userId: user.id, email: user.email });
+
+      // Log successful login
+      console.log(`✅ User logged in: ${email}`);
 
       res.json({
         success: true,
@@ -107,7 +110,7 @@ class AuthController {
       if (error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
         return res.status(503).json({
           success: false,
-          message: 'Database is not reachable. Start PostgreSQL and set DATABASE_URL, then run database/schema.sql.',
+          message: 'Database is not reachable. Ensure PostgreSQL is running and DATABASE_URL is set.',
           code: 'DB_UNAVAILABLE'
         });
       }

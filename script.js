@@ -155,10 +155,15 @@ document.addEventListener("DOMContentLoaded", function () {
     if (calculateRiskBtn) {
         calculateRiskBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            disableAllAudio();
+            disableAllAudio(); // Only disable audio, don't hide elements
             // Scroll to risk assessment section
             const riskSection = document.getElementById('risk-section-feature');
             if (riskSection) {
+                // Ensure section is visible before scrolling
+                riskSection.style.display = 'block';
+                riskSection.style.visibility = 'visible';
+                riskSection.style.opacity = '1';
+                
                 const yOffset = -80;
                 const y = riskSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
                 window.scrollTo({ top: y, behavior: 'smooth' });
@@ -166,29 +171,22 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Handle "Start Assessment" button
-    const startAssessmentBtns = document.querySelectorAll('.feature-btn');
-    startAssessmentBtns.forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            const href = this.getAttribute('href');
-            // If it's the risk assessment button (not GPS trigger or external link)
-            if (href === '#' && !this.classList.contains('gps-trigger')) {
-                disableAllAudio();
-            }
-        });
-    });
-
     // Monitor when risk assessment section comes into view
     const riskSection = document.getElementById('risk-section-feature');
     let riskSectionVisible = false;
     let aggressiveBlockInterval = null;
 
     if (riskSection) {
+        // Ensure risk section is always visible
+        riskSection.style.display = 'block';
+        riskSection.style.visibility = 'visible';
+        riskSection.style.opacity = '1';
+
         const observer = new IntersectionObserver(function (entries) {
             entries.forEach(entry => {
                 riskSectionVisible = entry.isIntersecting;
                 if (entry.isIntersecting) {
-                    // Disable audio when risk section is visible
+                    // Only disable audio when risk section is visible
                     disableAllAudio();
 
                     // Aggressively block speech synthesis when risk section is visible
@@ -196,7 +194,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         aggressiveBlockInterval = setInterval(function () {
                             if (riskSectionVisible) {
                                 window.speechSynthesis.cancel();
-                                // Try to prevent new speech
                                 if (window.speechSynthesis.speaking) {
                                     window.speechSynthesis.cancel();
                                 }
@@ -206,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     aggressiveBlockInterval = null;
                                 }
                             }
-                        }, 50); // Check every 50ms when section is visible
+                        }, 50);
                     }
                 } else {
                     // Stop aggressive blocking when section is not visible
