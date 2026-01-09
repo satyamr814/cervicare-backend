@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,9 +12,10 @@
       box-sizing: border-box;
     }
 
+    /* TEAL/GREEN THEME UPDATE */
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Noto Sans Devanagari', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #f0fdf4 0%, #f7fbff 100%);
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -24,17 +26,18 @@
     .container {
       background: white;
       border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 60px rgba(6, 147, 140, 0.15);
       width: 100%;
       max-width: 800px;
       height: 90vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      border: 1px solid rgba(6, 147, 140, 0.2);
     }
 
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #06938c 0%, #04706a 100%);
       color: white;
       padding: 20px;
       text-align: center;
@@ -44,6 +47,7 @@
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
+      box-shadow: 0 4px 15px rgba(6, 147, 140, 0.2);
     }
 
     .lang-selector {
@@ -53,25 +57,25 @@
       border-radius: 12px;
       font-size: 15px;
       font-weight: 600;
-      color: #667eea;
+      color: #06938c;
       background: white;
       cursor: pointer;
       transition: all 0.3s;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2306938c' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 15px center;
       padding-right: 40px;
     }
 
     .lang-selector:hover {
-      border-color: #667eea;
+      border-color: #06938c;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      box-shadow: 0 4px 12px rgba(6, 147, 140, 0.15);
     }
 
     .lang-selector option {
-      color: #667eea;
+      color: #06938c;
       background: white;
       padding: 12px;
       font-weight: 600;
@@ -119,6 +123,7 @@
         opacity: 0;
         transform: translateY(30px) scale(0.95);
       }
+
       100% {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -130,7 +135,7 @@
       transform: none;
       animation: none;
     }
-    
+
     /* Only apply subtle hover to bot messages, not questions */
     .bot-message:hover .bot-text {
       transform: translateY(-2px);
@@ -146,7 +151,7 @@
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #06938c 0%, #04706a 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -155,22 +160,27 @@
       margin-right: 12px;
       flex-shrink: 0;
       font-size: 24px;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 15px rgba(6, 147, 140, 0.3);
       animation: botBounce 3s ease-in-out infinite;
       transform-style: preserve-3d;
       transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
     @keyframes botBounce {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateY(0) rotateY(0deg) scale(1);
       }
+
       25% {
         transform: translateY(-5px) rotateY(5deg) scale(1.05);
       }
+
       50% {
         transform: translateY(0) rotateY(0deg) scale(1);
       }
+
       75% {
         transform: translateY(-3px) rotateY(-5deg) scale(1.03);
       }
@@ -178,30 +188,32 @@
 
     .bot-avatar:hover {
       transform: translateY(-5px) rotateY(15deg) scale(1.1);
-      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
+      box-shadow: 0 8px 25px rgba(6, 147, 140, 0.4);
     }
 
     .bot-text {
-      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
       padding: 16px 20px;
       border-radius: 20px;
+      border-top-left-radius: 4px;
       max-width: 75%;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(102, 126, 234, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(6, 147, 140, 0.1);
       line-height: 1.6;
       position: relative;
       transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      color: #333;
     }
 
     .bot-text:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(6, 147, 140, 0.2);
     }
 
     .read-aloud-btn {
       display: inline-block;
       margin-left: 10px;
       padding: 6px 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #06938c 0%, #04706a 100%);
       color: white;
       border: none;
       border-radius: 15px;
@@ -209,13 +221,13 @@
       font-size: 14px;
       font-weight: 600;
       transition: all 0.3s;
-      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 3px 10px rgba(6, 147, 140, 0.3);
       vertical-align: middle;
     }
 
     .read-aloud-btn:hover {
       transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 5px 15px rgba(6, 147, 140, 0.4);
     }
 
     .read-aloud-btn:active {
@@ -229,19 +241,20 @@
     }
 
     .user-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #06938c 0%, #04706a 100%);
       color: white;
       padding: 14px 20px;
       border-radius: 20px;
+      border-top-right-radius: 4px;
       max-width: 75%;
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 6px 20px rgba(6, 147, 140, 0.3);
       transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       position: relative;
     }
 
     .user-text:hover {
       transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 10px 30px rgba(6, 147, 140, 0.4);
     }
 
     .result-box {
@@ -261,9 +274,20 @@
       margin: 10px 0;
     }
 
-    .risk-low { background: #10b981; color: white; }
-    .risk-medium { background: #f59e0b; color: white; }
-    .risk-high { background: #ef4444; color: white; }
+    .risk-low {
+      background: #10b981;
+      color: white;
+    }
+
+    .risk-medium {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .risk-high {
+      background: #ef4444;
+      color: white;
+    }
 
     .probability-gauge {
       width: 100%;
@@ -401,7 +425,9 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .explain-btn {
@@ -466,8 +492,15 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
     }
 
     .menu-btn {
@@ -519,6 +552,7 @@
         opacity: 0;
         transform: translateY(-20px) scale(0.95);
       }
+
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -625,6 +659,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
@@ -1470,21 +1505,21 @@
       const menu = document.getElementById('menuDropdown');
       menu.classList.toggle('show');
     }
-    
+
     function toggleLanguageMenu() {
       const langOptions = document.getElementById('languageOptions');
       langOptions.style.display = langOptions.style.display === 'none' ? 'block' : 'none';
     }
-    
+
     function switchLanguage() {
       const langToggle = document.getElementById('langToggle');
       currentLang = langToggle.value;
       headerTitle.textContent = t('title');
       headerSubtitle.textContent = t('subtitle');
-      
+
       // Update voice recognition language
       updateRecognitionLanguage();
-      
+
       // Clear and restart conversation
       conversation.innerHTML = '';
       qArea.innerHTML = '';
@@ -1492,7 +1527,7 @@
       bot(t('hello'), false, true);
       askNext();
     }
-    
+
     // Close menu when clicking outside
     document.addEventListener('click', (e) => {
       const menu = document.getElementById('menuDropdown');
@@ -1503,43 +1538,43 @@
     });
 
     let currentSpeech = null;
-    
+
     function speakText(text, lang = currentLang) {
       if (currentSpeech) {
         window.speechSynthesis.cancel();
       }
-      
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = getSpeechLang(lang);
       utterance.rate = 0.9;
       utterance.pitch = 1.1;
       utterance.volume = 1;
-      
+
       currentSpeech = utterance;
       window.speechSynthesis.speak(utterance);
-      
+
       utterance.onend = () => {
         currentSpeech = null;
       };
-      
+
       utterance.onerror = () => {
         currentSpeech = null;
       };
     }
-    
+
     function stopSpeech() {
       if (currentSpeech) {
         window.speechSynthesis.cancel();
         currentSpeech = null;
       }
     }
-    
+
     function getSpeechLang(lang) {
       const langMap = {
         'en': 'en-US', 'hi': 'hi-IN', 'as': 'as-IN', 'bn': 'bn-IN', 'gu': 'gu-IN',
         'kn': 'kn-IN', 'ml': 'ml-IN', 'mr': 'mr-IN', 'or': 'or-IN', 'pa': 'pa-IN',
-        'ta': 'ta-IN', 'te': 'te-IN', 'ur': 'ur-IN', 'ur-PK': 'ur-PK', 'ne': 'ne-NP', 
-        'sa': 'sa-IN', 'sd': 'sd-PK', 'ks': 'ks-IN', 'kok': 'kok-IN', 'mai': 'mai-IN', 
+        'ta': 'ta-IN', 'te': 'te-IN', 'ur': 'ur-IN', 'ur-PK': 'ur-PK', 'ne': 'ne-NP',
+        'sa': 'sa-IN', 'sd': 'sd-PK', 'ks': 'ks-IN', 'kok': 'kok-IN', 'mai': 'mai-IN',
         'mni': 'mni-IN', 'sat': 'sat-IN'
       };
       return langMap[lang] || 'en-US';
@@ -1548,7 +1583,7 @@
     function bot(msg, isResult = false, showReadAloud = false) {
       const messageDiv = document.createElement('div');
       messageDiv.className = 'message bot-message';
-      
+
       const avatar = document.createElement('div');
       avatar.className = 'bot-avatar';
       avatar.innerHTML = '🤖';
@@ -1560,21 +1595,21 @@
           speakText(textToSpeak);
         }
       };
-      
+
       const text = document.createElement('div');
       text.className = 'bot-text';
-      
+
       if (showReadAloud && !isResult) {
         const textContent = msg.replace(/<[^>]*>/g, '').trim();
         text.innerHTML = msg + ` <button class="read-aloud-btn" onclick="speakText('${textContent.replace(/'/g, "\\'")}')" title="Read Aloud">🔊</button>`;
       } else {
         text.innerHTML = msg;
       }
-      
+
       messageDiv.appendChild(avatar);
       messageDiv.appendChild(text);
       conversation.appendChild(messageDiv);
-      
+
       if (isResult) {
         const resultBox = document.createElement('div');
         resultBox.className = 'result-box';
@@ -1582,18 +1617,18 @@
         text.innerHTML = '';
         text.appendChild(resultBox);
       }
-      
+
       optimizedScroll();
     }
 
     function user(msg) {
       const messageDiv = document.createElement('div');
       messageDiv.className = 'message user-message';
-      
+
       const text = document.createElement('div');
       text.className = 'user-text';
       text.textContent = msg;
-      
+
       messageDiv.appendChild(text);
       conversation.appendChild(messageDiv);
       optimizedScroll();
@@ -1612,7 +1647,7 @@
       }
 
       const s = steps[stepIndex];
-      
+
       // Skip conditional questions if condition not met
       if (s.conditional) {
         const conditionValue = s.conditionalValue;
@@ -1628,35 +1663,35 @@
       }
 
       qArea.innerHTML = '';
-      
+
       const questionContainer = document.createElement('div');
       questionContainer.style.marginBottom = '15px';
-      
+
       const questionText = document.createElement('div');
       questionText.className = 'bot-text';
       questionText.style.marginBottom = '15px';
       questionText.style.display = 'flex';
       questionText.style.alignItems = 'center';
       questionText.style.gap = '10px';
-      
+
       const questionSpan = document.createElement('span');
       questionSpan.textContent = s.text;
       questionText.appendChild(questionSpan);
-      
+
       const readAloudBtn = document.createElement('button');
       readAloudBtn.className = 'read-aloud-btn';
       readAloudBtn.textContent = '🔊';
       readAloudBtn.title = 'Read Aloud';
       readAloudBtn.onclick = () => speakText(s.text);
       questionText.appendChild(readAloudBtn);
-      
+
       questionContainer.appendChild(questionText);
-      
+
       const progressDiv = document.createElement('div');
       progressDiv.className = 'progress-indicator';
       progressDiv.textContent = t('questionOf', stepIndex + 1, steps.length);
       questionContainer.appendChild(progressDiv);
-      
+
       const messageDiv = document.createElement('div');
       messageDiv.className = 'message bot-message';
       const avatar = document.createElement('div');
@@ -1689,21 +1724,21 @@
         const inputGroup = document.createElement('div');
         inputGroup.className = 'input-group';
         inputGroup.style.marginTop = '10px';
-        
+
         const input = document.createElement('input');
         input.type = 'number';
         input.className = 'number-input';
         input.placeholder = t('enterNumber');
         input.id = 'num_input';
         currentInput = input;
-        
+
         // Add voice input button
         const voiceBtn = document.createElement('button');
         voiceBtn.className = 'voice-btn';
         voiceBtn.innerHTML = '🎤';
         voiceBtn.title = 'Voice Input';
         voiceBtn.onclick = () => startVoiceInput(input);
-        
+
         const btn = document.createElement('button');
         btn.className = 'submit-btn';
         btn.textContent = t('next');
@@ -1715,40 +1750,40 @@
           stepIndex++;
           askNext();
         };
-        
+
         input.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') {
             btn.click();
           }
         });
-        
+
         inputGroup.appendChild(input);
         inputGroup.appendChild(voiceBtn);
         inputGroup.appendChild(btn);
         qArea.appendChild(inputGroup);
         setTimeout(() => input.focus(), 100);
       }
-      
+
       optimizedScroll();
     }
 
     async function sendToBackend() {
       try {
         const payload = { ...state };
-        
+
         // Validate all required fields are filled
         const requiredFields = ['Age', 'Num_of_sexual_partners', 'First_sex_age', 'Num_of_pregnancies'];
         const missingFields = requiredFields.filter(field => state[field] === null || state[field] === undefined);
-        
+
         if (missingFields.length > 0) {
           bot(`Error: Please fill all required fields. Missing: ${missingFields.join(', ')}`, false);
           qArea.innerHTML = '';
           return;
         }
-        
+
         const resp = await fetch('/predict', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
@@ -1769,13 +1804,13 @@
         if (data && typeof data === 'object' && data.risk_bucket) {
           const riskClass = (data.risk_bucket || '').toLowerCase();
           const probPercent = data.probability_percent || (data.probability ? (data.probability * 100).toFixed(1) : '0');
-          
+
           const riskText = riskClass === 'low' ? t('riskLow') : riskClass === 'medium' ? t('riskMedium') : t('riskHigh');
-          
+
           // Detailed explanations based on risk level
           let whatThisMeans = '';
           let whatToDo = '';
-          
+
           if (riskClass === 'low') {
             whatThisMeans = 'Your data shows very few or weak risk indicators commonly linked to cervical cancer.';
             whatToDo = '• Continue routine cervical screening\n• Maintain preventive practices and regular health check-ups';
@@ -1786,7 +1821,7 @@
             whatThisMeans = 'The model detected strong patterns associated with cervical cancer risk.';
             whatToDo = '• Immediate medical consultation is strongly advised\n• Diagnostic tests such as HPV testing, Pap smear, or biopsy may be required';
           }
-          
+
           const resultHTML = `
             <div style="text-align: center; max-width: 100%;">
               <h3 style="margin-bottom: 20px; font-size: 24px; color: #1f2937;">${t('riskResult')}</h3>
@@ -1833,12 +1868,12 @@
               </div>
             </div>
           `;
-          
+
           // Store result data globally for PDF and save (include profile if available)
           const profileData = currentProfile ? { profile: currentProfile } : {};
           window.lastResult = { ...data, input_data: { ...state }, ...profileData };
           bot(resultHTML, true);
-          
+
           // Auto-save to history
           saveResultToHistory(data);
         } else {
@@ -1857,7 +1892,7 @@
         const payload = { ...state };
         const resp = await fetch('/explain', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
@@ -1866,7 +1901,7 @@
           const riskClass = window.lastResult?.risk_bucket?.toLowerCase() || 'low';
           let whatMeans = '';
           let whatToDo = '';
-          
+
           if (riskClass === 'low') {
             whatMeans = 'Your data shows very few or weak risk indicators commonly linked to cervical cancer.';
             whatToDo = '• Continue routine cervical screening\n• Maintain preventive practices and regular health check-ups';
@@ -1877,7 +1912,7 @@
             whatMeans = 'The model detected strong patterns associated with cervical cancer risk.';
             whatToDo = '• Immediate medical consultation is strongly advised\n• Diagnostic tests such as HPV testing, Pap smear, or biopsy may be required';
           }
-          
+
           const explanationHTML = `
             <div style="text-align: left; max-width: 100%;">
               <h4 style="color: #1f2937; font-size: 20px; margin-bottom: 15px; font-weight: 700;">Why this prediction?</h4>
@@ -1937,7 +1972,7 @@
         recognition.maxAlternatives = 1;
       }
     }
-    
+
     function updateRecognitionLanguage() {
       if (recognition) {
         recognition.lang = getSpeechLang(currentLang);
@@ -1977,7 +2012,7 @@
         if (event.results.length > 0) {
           const transcript = event.results[0][0].transcript.trim();
           console.log('Voice input:', transcript);
-          
+
           // Try to extract number
           const number = parseInt(transcript.replace(/\D/g, ''));
           if (!isNaN(number) && number >= 0) {
@@ -2004,7 +2039,7 @@
         voiceBtn.classList.remove('recording');
         voiceBtn.innerHTML = '🎤';
         voiceBtn.disabled = false;
-        
+
         let errorMsg = 'Voice recognition error. ';
         if (event.error === 'no-speech') {
           errorMsg += 'No speech detected. Please try again.';
@@ -2063,11 +2098,11 @@
             console.log('Profile not found, generating PDF without profile');
           }
         }
-        
+
         const resultForPDF = { ...window.lastResult, ...profileData };
         const resp = await fetch('/generate-pdf', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(resultForPDF)
         });
 
@@ -2109,11 +2144,11 @@
             console.log('Profile not found, saving without profile');
           }
         }
-        
+
         const resultToSave = { ...window.lastResult, ...profileData };
         const resp = await fetch('/save-result', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(resultToSave)
         });
 
@@ -2132,7 +2167,7 @@
       try {
         await fetch('/save-result', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...result, input_data: { ...state } })
         });
       } catch (err) {
@@ -2169,7 +2204,7 @@
     async function loadProfile() {
       const content = document.getElementById('profileModalContent');
       const profileId = localStorage.getItem('profileId') || 'default';
-      
+
       try {
         const resp = await fetch(`/profile/${profileId}`);
         const data = await resp.json();
@@ -2210,7 +2245,7 @@
       try {
         const resp = await fetch('/profile', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(profileData)
         });
 
@@ -2242,7 +2277,7 @@
       try {
         const resp = await fetch('/history?limit=20');
         const data = await resp.json();
-        
+
         if (data.history && data.history.length > 0) {
           let html = '<div style="max-height: 400px; overflow-y: auto;">';
           data.history.forEach(item => {
@@ -2278,13 +2313,13 @@
     async function loadEducationalContent() {
       const content = document.getElementById('eduModalContent') || document.querySelector('#eduModal .modal-content');
       if (!content) return;
-      
+
       content.innerHTML = '<p>Loading educational content...</p>';
 
       try {
         const resp = await fetch('/educational-content');
         const data = await resp.json();
-        
+
         if (data.all_content) {
           let html = '<div style="max-height: 500px; overflow-y: auto;">';
           Object.keys(data.all_content).forEach(category => {
@@ -2312,7 +2347,7 @@
     async function findDoctors() {
       const modal = document.getElementById('doctorsModal') || createModal('doctorsModal', 'Find Nearby Doctors');
       modal.style.display = 'flex';
-      
+
       // Request location
       let userLat = null, userLon = null;
       if (navigator.geolocation) {
@@ -2335,24 +2370,24 @@
     async function loadDoctors(lat, lon) {
       const content = document.getElementById('doctorsModalContent') || document.querySelector('#doctorsModal .modal-content');
       if (!content) return;
-      
+
       content.innerHTML = '<p>Finding doctors...</p>';
 
       try {
         const url = `/doctors${lat && lon ? `?lat=${lat}&lon=${lon}` : ''}`;
         const resp = await fetch(url);
         const data = await resp.json();
-        
+
         if (data.doctors && data.doctors.length > 0) {
           let html = '<div style="max-height: 500px; overflow-y: auto;">';
-          
+
           if (lat && lon) {
             html += `<p style="color: #667eea; margin-bottom: 15px;">📍 Showing ${data.count} nearest doctors based on your location</p>`;
             html += `<div id="map" style="width: 100%; height: 300px; margin-bottom: 20px; border-radius: 10px; overflow: hidden;"></div>`;
           } else {
             html += `<p style="color: #6b7280; margin-bottom: 15px;">Enable location services to see nearest doctors</p>`;
           }
-          
+
           data.doctors.forEach(doctor => {
             html += `
               <div style="background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 4px solid #667eea;">
@@ -2369,7 +2404,7 @@
           });
           html += '</div>';
           content.innerHTML = html;
-          
+
           // Load map if location available
           if (lat && lon && data.doctors.length > 0) {
             setTimeout(() => loadMap(lat, lon, data.doctors), 100);
@@ -2385,7 +2420,7 @@
     function loadMap(userLat, userLon, doctors) {
       const mapDiv = document.getElementById('map');
       if (!mapDiv) return;
-      
+
       // Use OpenStreetMap with Leaflet (free, no API key required)
       if (typeof L === 'undefined') {
         // Load Leaflet CSS and JS
@@ -2393,7 +2428,7 @@
         leafletCSS.rel = 'stylesheet';
         leafletCSS.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
         document.head.appendChild(leafletCSS);
-        
+
         const leafletJS = document.createElement('script');
         leafletJS.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
         leafletJS.onload = () => initMap(userLat, userLon, doctors);
@@ -2406,21 +2441,21 @@
     function initMap(userLat, userLon, doctors) {
       const mapDiv = document.getElementById('map');
       if (!mapDiv || typeof L === 'undefined') return;
-      
+
       // Initialize map
       const map = L.map('map').setView([userLat, userLon], 12);
-      
+
       // Add tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
-      
+
       // Add user location marker
       L.marker([userLat, userLon])
         .addTo(map)
         .bindPopup('Your Location')
         .openPopup();
-      
+
       // Add doctor markers
       doctors.forEach(doctor => {
         if (doctor.lat && doctor.lon) {
@@ -2441,5 +2476,5 @@
     askNext();
   </script>
 </body>
-</html>
 
+</html>
