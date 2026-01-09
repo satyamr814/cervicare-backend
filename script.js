@@ -21,18 +21,39 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (profileName && user.firstName) profileName.textContent = `${user.firstName} ${user.lastName || ''}`.trim();
                 if (profileEmail && user.email) profileEmail.textContent = user.email;
 
-                // Fetch avatar
+                // Fetch avatar with proper error handling
                 if (navProfileImg && navProfileIconDefault) {
                     try {
                         const userId = user.id || user.userId || user._id;
-                        // Mock fetch for now, or real endpoint if exists
-                        // const response = await fetch(`/api/avatar/current/${userId}`);
-                        // const data = await response.json();
-                        navProfileImg.style.display = 'none'; // Default to icon for stability
-                        navProfileIconDefault.style.display = 'inline-block';
+                        const response = await fetch(`/api/avatar/current/${userId}`);
+
+                        if (response.ok) {
+                            const data = await response.json();
+
+                            if (data.success && data.data.avatar && data.data.avatar.display_image_url) {
+                                // Show custom avatar
+                                navProfileImg.src = data.data.avatar.display_image_url;
+                                navProfileImg.style.display = 'block';
+                                navProfileImg.style.width = '40px';
+                                navProfileImg.style.height = '40px';
+                                navProfileImg.style.borderRadius = '50%';
+                                navProfileImg.style.objectFit = 'cover';
+                                navProfileIconDefault.style.display = 'none';
+                            } else {
+                                // Show default icon
+                                navProfileImg.style.display = 'none';
+                                navProfileIconDefault.style.display = 'inline-block';
+                            }
+                        } else {
+                            // API error - show default
+                            navProfileImg.style.display = 'none';
+                            navProfileIconDefault.style.display = 'inline-block';
+                        }
                     } catch (err) {
+                        console.error('Error fetching navbar avatar:', err);
+                        // Fallback to default icon
                         navProfileImg.style.display = 'none';
-                        navProfileIconDefault.style.display = 'inline-block';
+                        if (navProfileIconDefault) navProfileIconDefault.style.display = 'inline-block';
                     }
                 }
             } catch (e) { console.error('Error parsing user data:', e); }
