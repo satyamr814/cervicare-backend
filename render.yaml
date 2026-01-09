@@ -1,0 +1,46 @@
+# Render Blueprint for CerviCare Backend
+# This file enables instant deployment on Render
+# https://render.com/docs/blueprint-spec
+
+services:
+  # PostgreSQL Database
+  - type: pg
+    name: cervicare-database
+    plan: free  # Change to 'starter' or 'standard' for production
+    databaseName: cervicare_db
+    user: cervicare_user
+
+  # Web Service (Backend API)
+  - type: web
+    name: cervicare-backend
+    runtime: node
+    plan: free  # Change to 'starter' or 'standard' for production
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # Database connection (auto-populated by Render)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cervicare-database
+          property: connectionString
+      
+      # JWT Secret (MUST be set manually in Render dashboard)
+      # Generate using: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      - key: JWT_SECRET
+        sync: false  # Set manually in dashboard
+        generateValue: true  # Render will generate if not set
+      
+      # Environment
+      - key: NODE_ENV
+        value: production
+      
+      # Optional: Admin key for admin endpoints
+      - key: ADMIN_KEY
+        sync: false  # Set manually if needed
+        generateValue: true
+
+# Note: After deployment, you MUST:
+# 1. Set JWT_SECRET manually in the web service environment (32+ characters)
+# 2. Run database schema: psql "$DATABASE_URL" -f database/schema.sql
+#    OR let seederService apply it automatically on first start
+# 3. Verify deployment in logs
