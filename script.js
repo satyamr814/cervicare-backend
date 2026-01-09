@@ -279,23 +279,58 @@ document.addEventListener('DOMContentLoaded', function () {
     if (dietForm) {
         dietForm.addEventListener('submit', function (e) {
             e.preventDefault();
+
+            // Get values
             const budget = document.getElementById('budget-select').value;
             const diet = document.getElementById('diet-select').value;
 
+            // Enhanced validation with visual feedback
             if (!budget || !diet) {
-                alert('Please select both Budget and Dietary Preference');
+                alert('⚠️ Please select both Budget and Dietary Preference to generate your personalized plan.');
+
+                // Highlight empty fields
+                if (!budget) document.getElementById('budget-select').style.border = '2px solid #ef4444';
+                if (!diet) document.getElementById('diet-select').style.border = '2px solid #ef4444';
+
+                // Reset borders after 2 seconds
+                setTimeout(() => {
+                    document.getElementById('budget-select').style.border = '';
+                    document.getElementById('diet-select').style.border = '';
+                }, 2000);
                 return;
             }
 
-            // Generate and Render
-            const riskVal = parseInt(riskValueText?.innerText) || 24;
-            const plan = generateRiskAwareMealPlan(riskVal, budget, diet);
-            renderEnhancedMealPlan(plan);
-            renderShoppingList(plan);
+            // Show loading
+            showLoading();
 
-            // Show Results
-            document.getElementById('diet-form-container').style.display = 'none';
-            document.getElementById('diet-plan-results').style.display = 'block';
+            // Simulate processing delay for better UX
+            setTimeout(() => {
+                try {
+                    // Generate and Render
+                    const riskVal = parseInt(riskValueText?.innerText) || 24;
+                    const plan = generateRiskAwareMealPlan(riskVal, budget, diet);
+                    renderEnhancedMealPlan(plan);
+                    renderShoppingList(plan);
+
+                    // Hide loading
+                    hideLoading();
+
+                    // Show success notification
+                    showSuccess('🎉 Your personalized meal plan is ready!');
+
+                    // Show Results
+                    document.getElementById('diet-form-container').style.display = 'none';
+                    document.getElementById('diet-plan-results').style.display = 'block';
+
+                    // Scroll to results
+                    document.getElementById('meal-plan-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                } catch (error) {
+                    hideLoading();
+                    console.error('Error generating meal plan:', error);
+                    alert('❌ Something went wrong generating your meal plan. Please try again.');
+                }
+            }, 1500); // 1.5 second delay for smooth UX
         });
     }
 
@@ -368,15 +403,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     return i.trim();
                 }).join(', ');
 
+                // Benefit badge text
+                const benefitText = m.benefit === 'red' ? 'Anti-Cancer' : (m.benefit === 'yellow' ? 'Immunity' : 'Detox');
+
                 mealHTML += `
                 <div class="meal-card ${m.benefit}">
                     <div class="meal-type" style="text-transform:capitalize; color:#666; font-size:12px;">${type}</div>
                     <div class="meal-name" style="font-weight:bold; color:#06938c;">${m.name}</div>
                     <div class="meal-details" style="font-size:13px; margin: 4px 0;">${ingDisplay}</div>
-                    <div class="meal-meta" style="display:flex; justify-content:space-between; font-size:12px; color:#555;">
+                    <div class="meal-meta" style="display:flex; justify-content:space-between; font-size:12px; color:#555; margin: 8px 0;">
                         <span>⏱ ${m.time}</span>
                         <span>₹${m.cost}</span>
+                        <span class="benefit-badge" style="background: ${m.benefit === 'red' ? '#fef2f2' : m.benefit === 'yellow' ? '#fefce8' : '#f0fdf4'}; color: ${m.benefit === 'red' ? '#991b1b' : m.benefit === 'yellow' ? '#854d0e' : '#14532d'}; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${benefitText}</span>
                     </div>
+                    ${m.marketTip ? `<div class="market-tip" style="font-size:11px; color:#666; background:#f9fafb; padding:6px; border-radius:4px; margin-top:6px;">🛒 ${m.marketTip}</div>` : ''}
                 </div>`;
             });
 
@@ -389,9 +429,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Re-attach tooltip listeners if needed (CSS :hover usually handles it)
         // Adding simple style injection for tooltips if not in CSS
-        const style = document.createElement('style');
-        style.textContent = `.tooltip:hover .tooltiptext { visibility: visible !important; opacity: 1; bottom: 100%; left: 50%; margin-left: -70px; } .tooltip { position: relative; }`;
-        document.head.appendChild(style);
+        if (!document.getElementById('tooltip-styles')) {
+            const style = document.createElement('style');
+            style.id = 'tooltip-styles';
+            style.textContent = `.tooltip:hover .tooltiptext { visibility: visible !important; opacity: 1; bottom: 100%; left: 50%; margin-left: -70px; } .tooltip { position: relative; }`;
+            document.head.appendChild(style);
+        }
     }
 
     function renderShoppingList(plan) {
@@ -496,28 +539,3 @@ function saveFavorite() {
         showSuccess('Meal plan saved to favorites! ❤️');
     }
 }
-
-// Enhanced form submission with loading
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('diet-plan-form');
-    if (form) {
-        const originalHandler = form.onsubmit;
-        form.onsubmit = function (e) {
-            e.preventDefault();
-
-            // Show loading
-            showLoading();
-
-            // Simulate processing delay
-            setTimeout(() => {
-                // Original form logic would go here
-                const submitEvent = new Event('submit', { cancelable: true });
-                if (originalHandler) originalHandler.call(form, submitEvent);
-
-                // Hide loading & show success
-                hideLoading();
-                showSuccess('Your personalized meal plan is ready! 🎉');
-            }, 2000);
-        };
-    }
-});
