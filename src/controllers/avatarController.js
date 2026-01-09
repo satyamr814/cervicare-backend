@@ -287,12 +287,13 @@ class AvatarController {
   // Get user's current avatar
   static async getUserAvatar(req, res) {
     try {
-      const userId = req.user?.userId;
+      // Support both authenticated user and userId from params (for public access)
+      const userId = req.user?.userId || req.params.userId;
 
       if (!userId) {
-        return res.status(401).json({
+        return res.status(400).json({
           success: false,
-          message: 'Authentication required'
+          message: 'User ID required'
         });
       }
 
