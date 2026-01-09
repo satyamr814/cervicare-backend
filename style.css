@@ -1377,7 +1377,14 @@ nav a:hover {
 /* Right Card */
 .hero-right {
     flex: 0 0 400px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
     animation: fadeInRight 1s ease-out 0.2s both;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative;
+    z-index: 10;
 }
 
 .hero-risk-card {
@@ -1556,7 +1563,9 @@ nav a:hover {
 /* Risk Assessment Preview - ENSURE VISIBILITY */
 #risk-section-feature,
 .risk-assessment-preview,
-.risk-assessment-container {
+.risk-assessment-container,
+.hero-risk-card,
+.hero-right {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -1568,17 +1577,40 @@ nav a:hover {
 }
 
 /* Ensure all risk assessment child elements are visible */
-#risk-section-feature * {
-    display: block !important;
+#risk-section-feature *,
+.hero-risk-card *,
+.hero-right * {
     visibility: visible !important;
     opacity: 1 !important;
 }
 
 /* Override any modal/hidden classes that might apply */
 #risk-section-feature.hidden,
-#risk-section-feature.modal {
+#risk-section-feature.modal,
+.hero-right.hidden,
+.hero-risk-card.hidden {
     display: block !important;
     visibility: visible !important;
+}
+
+/* Fix risk box display issues */
+.risk-box,
+.risk-box * {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.risk-header {
+    display: flex !important;
+}
+
+.risk-factors {
+    display: block !important;
+}
+
+.factor {
+    display: flex !important;
 }
 
 /* ===== RESPONSIVE DESIGN */

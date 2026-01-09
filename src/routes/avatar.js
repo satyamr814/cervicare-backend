@@ -31,8 +31,20 @@ router.use(authMiddleware);
 router.post('/generate-ai', AvatarController.generateAIAvatar);
 router.get('/random', AvatarController.getRandomAvatar);
 
-// Custom image upload
-router.post('/upload', upload.single('image'), AvatarController.uploadCustomImage);
+// Custom image upload - supports both multipart/form-data and base64 JSON
+router.post('/upload', (req, res, next) => {
+  // Check if request is base64 JSON (from frontend)
+  if (req.headers['content-type']?.includes('application/json') && req.body.image) {
+    // Handle base64 upload directly
+    AvatarController.uploadCustomImageBase64(req, res).catch(err => {
+      console.error('Base64 upload error:', err);
+      res.status(500).json({ success: false, message: err.message });
+    });
+    return; // Don't call next()
+  }
+  // Otherwise use multer for multipart/form-data
+  next();
+}, upload.single('image'), AvatarController.uploadCustomImage);
 
 // Avatar management
 router.get('/current', AvatarController.getUserAvatar);

@@ -96,7 +96,79 @@ class AvatarController {
     }
   }
 
-  // Upload custom image
+  // Upload custom image (base64 format from frontend)
+  static async uploadCustomImageBase64(req, res) {
+    try {
+      const userId = req.user?.userId || req.body.userId;
+      const { image, filename } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Authentication required'
+        });
+      }
+
+      if (!image) {
+        return res.status(400).json({
+          success: false,
+          message: 'No image data provided'
+        });
+      }
+
+      // Extract base64 data
+      const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (!matches || matches.length !== 3) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid image format. Expected base64 data URI.'
+        });
+      }
+
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      const imageBuffer = Buffer.from(base64Data, 'base64');
+
+      const fileData = {
+        filename: filename || `upload-${Date.now()}.${mimeType.split('/')[1] || 'png'}`,
+        mimeType: mimeType,
+        size: imageBuffer.length,
+        buffer: imageBuffer
+      };
+
+      const result = await avatarService.uploadCustomImage(userId, fileData);
+
+      // Track analytics event
+      analyticsService.trackEvent(userId, 'avatar_custom_uploaded', {
+        fileSize: fileData.size,
+        mimeType: fileData.mimeType
+      }, {
+        sessionId: req.sessionId,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+
+      res.json({
+        success: true,
+        message: 'Custom image uploaded successfully',
+        data: {
+          imageUrl: result.imageUrl,
+          thumbnailUrl: result.thumbnailUrl,
+          uploadId: result.uploadId
+        }
+      });
+
+    } catch (error) {
+      console.error('Upload custom image (base64) error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to upload custom image',
+        error: error.message
+      });
+    }
+  }
+
+  // Upload custom image (multipart/form-data)
   static async uploadCustomImage(req, res) {
     try {
       const userId = req.user?.userId;

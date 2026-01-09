@@ -9,7 +9,14 @@ class AvatarService {
     this.aiProviders = {
       dicebear: {
         baseUrl: 'https://api.dicebear.com/7.x',
-        styles: ['avataaars', 'adventurer', 'bottts', 'lorelei', 'notionists', 'personas']
+        styles: [
+          'avataaars', 'avataaars-neutral', 'adventurer', 'adventurer-neutral',
+          'big-ears', 'big-ears-neutral', 'big-smile', 'bottts', 'bottts-neutral',
+          'croodles', 'croodles-neutral', 'fun-emoji', 'icons', 'identicon',
+          'lorelei', 'lorelei-neutral', 'micah', 'miniavs', 'notionists',
+          'notionists-neutral', 'open-peeps', 'personas', 'pixel-art',
+          'pixel-art-neutral', 'rings', 'shapes', 'thumbs'
+        ]
       }
     };
   }
@@ -91,56 +98,62 @@ class AvatarService {
     }
   }
 
-  // Get random avatar from templates
+  // Get random avatar from templates or generate using DiceBear
   async getRandomAvatar(userId, templateType = 'random_set') {
     try {
-      // Get random template from database
-      const query = `
-        SELECT template_name, image_url, thumbnail_url, description, tags
-        FROM avatar_templates
-        WHERE template_type = $1 AND is_active = true
-        ORDER BY RANDOM()
-        LIMIT 1
-      `;
+      // Enhanced random avatar generation with more creative styles
+      const allStyles = this.aiProviders.dicebear.styles;
+      const randomStyle = allStyles[Math.floor(Math.random() * allStyles.length)];
+      const randomSeed = `random-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      const randomColor = this.getRandomColor();
       
-      const result = await pool.query(query, [templateType]);
-      
-      if (result.rows.length === 0) {
-        throw new Error('No avatar templates available');
-      }
-      
-      const template = result.rows[0];
+      // Generate random avatar URL using DiceBear
+      const baseUrl = this.aiProviders.dicebear.baseUrl;
+      const avatarUrl = this.buildDiceBearUrl(baseUrl, randomStyle, randomSeed, {
+        backgroundColor: randomColor
+      });
       
       // Update user profile with random avatar
       await this.updateUserAvatar(userId, {
         avatar_type: 'random',
-        profile_image_url: template.image_url,
+        profile_image_url: avatarUrl,
         avatar_metadata: {
-          template_name: template.template_name,
-          template_url: template.image_url,
+          template_name: randomStyle,
+          template_url: avatarUrl,
           template_type: templateType,
-          description: template.description,
-          tags: template.tags,
+          style: randomStyle,
+          seed: randomSeed,
+          backgroundColor: randomColor,
           selected_at: new Date().toISOString()
         }
       });
       
-      // Create generation request record
-      await pool.query(`
-        INSERT INTO avatar_generation_requests (user_id, generation_type, request_data, result_image_url, generation_status, completed_at)
-        VALUES ($1, 'random_selected', $2, $3, 'completed', CURRENT_TIMESTAMP)
-      `, [
-        userId,
-        JSON.stringify({ template_name: template.template_name, template_type: templateType }),
-        template.image_url
-      ]);
+      // Try to create generation request record (if table exists)
+      try {
+        await pool.query(`
+          INSERT INTO avatar_generation_requests (user_id, generation_type, request_data, result_image_url, generation_status, completed_at)
+          VALUES ($1, 'random_selected', $2, $3, 'completed', CURRENT_TIMESTAMP)
+        `, [
+          userId,
+          JSON.stringify({ template_name: randomStyle, template_type: templateType }),
+          avatarUrl
+        ]);
+      } catch (err) {
+        // Table might not exist, ignore
+        console.log('Note: avatar_generation_requests table not found, skipping log');
+      }
       
-      console.log(`🎲 Random avatar selected for user ${userId}: ${template.template_name}`);
+      console.log(`🎲 Random avatar generated for user ${userId}: ${randomStyle}`);
       
       return {
         success: true,
-        avatarUrl: template.image_url,
-        template: template
+        avatarUrl: avatarUrl,
+        template: {
+          template_name: randomStyle,
+          image_url: avatarUrl,
+          description: `Random ${randomStyle} avatar`,
+          tags: [randomStyle, 'random', 'creative']
+        }
       };
       
     } catch (error) {
@@ -323,20 +336,41 @@ class AvatarService {
 
   // Helper methods
   async updateUserAvatar(userId, avatarData) {
-    const query = `
-      UPDATE user_profiles 
-      SET avatar_type = $1, profile_image_url = $2, avatar_metadata = $3, 
-          image_uploaded_at = CURRENT_TIMESTAMP, image_processing_status = 'completed'
-      WHERE user_id = $1
-      RETURNING *
-    `;
+    // First check if profile exists, if not create it
+    const checkQuery = `SELECT user_id FROM user_profiles WHERE user_id = $1`;
+    const checkResult = await pool.query(checkQuery, [userId]);
     
-    const result = await pool.query(query, [
-      userId, 
-      avatarData.avatar_type, 
-      avatarData.profile_image_url, 
-      JSON.stringify(avatarData.avatar_metadata)
-    ]);
+    if (checkResult.rows.length === 0) {
+      // Create profile if it doesn't exist
+      const insertQuery = `
+        INSERT INTO user_profiles (user_id, avatar_type, profile_image_url, avatar_metadata, image_uploaded_at)
+        VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+        RETURNING *
+      `;
+      const insertResult = await pool.query(insertQuery, [
+        userId,
+        avatarData.avatar_type,
+        avatarData.profile_image_url,
+        JSON.stringify(avatarData.avatar_metadata)
+      ]);
+      return insertResult.rows[0];
+    } else {
+      // Update existing profile
+      const updateQuery = `
+        UPDATE user_profiles 
+        SET avatar_type = $2, profile_image_url = $3, avatar_metadata = $4, 
+            image_uploaded_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = $1
+        RETURNING *
+      `;
+      const result = await pool.query(updateQuery, [
+        userId,
+        avatarData.avatar_type,
+        avatarData.profile_image_url,
+        JSON.stringify(avatarData.avatar_metadata)
+      ]);
+      return result.rows[0];
+    }
     
     return result.rows[0];
   }
