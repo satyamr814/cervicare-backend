@@ -1,3 +1,12 @@
+/**
+ * 🌸 CerviCare Backend — App Entry Point
+ * 
+ * This is the main server file for the CerviCare Backend API.
+ * It initializes middleware, routes, and services for the platform.
+ * 
+ * Architecture: Clean Express.js with Modular Routing
+ */
+
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
@@ -5,7 +14,13 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-// Import routes
+// Import Config & Middlewares
+const pool = require('./config/database');
+const SecurityMiddleware = require('./middleware/security');
+const ProductionMiddleware = require('./middleware/production');
+const authMiddleware = require('./middleware/auth');
+
+// Import Routes
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const personalizationRoutes = require('./routes/personalization');
@@ -15,171 +30,126 @@ const automationRoutes = require('./routes/automation');
 const analyticsRoutes = require('./routes/analytics');
 const avatarRoutes = require('./routes/avatar');
 const botDataRoutes = require('./routes/botData');
-const debugRoutes = require('./routes/debug');
 
-// Import middleware
-const authMiddleware = require('./middlewares/auth');
-const RoleMiddleware = require('./middlewares/roles');
-const SecurityMiddleware = require('./middlewares/security');
-const ProductionMiddleware = require('./middlewares/production');
-
-// Initialize services
+// Initialize Services
 const googleSheetsService = require('./services/googleSheetsService');
 const sheetsSyncService = require('./services/sheetsSyncService');
-const automationService = require('./services/automationService');
-const analyticsService = require('./services/analyticsService');
+const seederService = require('./services/seederService');
 
-const pool = require('./config/database');
-
-// Initialize Express app
+// Initialize Express
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Apply production middleware
+/**
+ * ─── MIDDLEWARE SETUP ───
+ */
+
+// Production & Security Enhancements
 app.use(ProductionMiddleware.validateEnvironment);
 app.use(ProductionMiddleware.correlationId);
 app.use(ProductionMiddleware.requestLogger);
 app.use(ProductionMiddleware.performanceMonitor);
-app.use(ProductionMiddleware.apiVersioning);
-
-// Security middleware
-app.use(SecurityMiddleware.securityHeaders());
+app.use(helmet(SecurityMiddleware.securityHeaders()));
 app.use(cors(SecurityMiddleware.corsOptions()));
 
-// Rate limiting
-app.use(SecurityMiddleware.apiRateLimiter());
-
-// Body parsing middleware
+// Body Parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve frontend static files (website) from project root
-app.use(express.static(path.join(__dirname, '..')));
+// Static Files & Uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Suspicious activity monitoring
+// Monitoring
 app.use(SecurityMiddleware.monitorSuspiciousActivity);
 
-// Health check endpoint
-app.get('/api/health', ProductionMiddleware.healthCheck);
-app.get('/api/health/detailed', ProductionMiddleware.detailedHealthCheck);
+/**
+ * ─── ROUTE DEFINITIONS ───
+ */
 
-// Frontend entry
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
-});
-
-// API Routes
-app.use('/api/auth', SecurityMiddleware.authRateLimiter(), authRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/admin', SecurityMiddleware.adminRateLimiter(), adminRoutes);
-app.use('/api/webhook', webhookRoutes);
-app.use('/api/automation', automationRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/avatar', avatarRoutes);
-app.use('/api/bot-data', botDataRoutes);
-app.use('/api/debug', debugRoutes);
-
-// Keep this last among /api routes because it is a broad mount
-app.use('/api', personalizationRoutes);
-
-// Quick customer export endpoint (admin key auth)
-app.get('/api/admin/users', async (req, res) => {
-  try {
-    const adminKey = req.header('X-Admin-Key');
-    if (!process.env.ADMIN_KEY || adminKey !== process.env.ADMIN_KEY) {
-      return res.status(401).json({
-        success: false,
-        message: 'Admin key required'
-      });
-    }
-
-    const usersResult = await pool.query(
-      `SELECT id, email, role, plan_type, created_at, updated_at FROM users ORDER BY created_at DESC LIMIT 200`
-    );
-
-    const profilesResult = await pool.query(
-      `SELECT user_id, age, gender, city, diet_type, budget_level, lifestyle, whatsapp_consent, marketing_consent, phone, created_at, updated_at FROM user_profiles ORDER BY updated_at DESC LIMIT 200`
-    );
-
-    res.json({
-      success: true,
-      data: {
-        users: usersResult.rows,
-        profiles: profilesResult.rows
-      }
-    });
-  } catch (error) {
-    if (error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
-      return res.status(503).json({
-        success: false,
-        message: 'Database is not reachable. Start PostgreSQL and set DATABASE_URL, then run database/schema.sql.',
-        code: 'DB_UNAVAILABLE'
-      });
-    }
-
-    console.error('Admin users export error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-  }
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
+// Health Checks
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'CerviCare API is running',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
   });
 });
 
-// Global error handler
+app.get('/api/health/detailed', ProductionMiddleware.detailedHealthCheck);
+
+// API Routes
+app.use('/api/auth', SecurityMiddleware.authRateLimiter(), authRoutes);
+app.use('/api/profile', authMiddleware, profileRoutes);
+app.use('/api/admin', SecurityMiddleware.adminRateLimiter(), adminRoutes);
+app.use('/api/webhook', webhookRoutes);
+app.use('/api/automation', authMiddleware, automationRoutes);
+app.use('/api/analytics', authMiddleware, analyticsRoutes);
+app.use('/api/avatar', avatarRoutes);
+app.use('/api/bot-data', botDataRoutes);
+
+// Broad mounting for personalization (Keep last)
+app.use('/api', personalizationRoutes);
+
+/**
+ * ─── ERROR HANDLING ───
+ */
+
+// 404 Handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Endpoint not found'
+  });
+});
+
+// Global Error Handler
 app.use(ProductionMiddleware.globalErrorHandler);
 
-// Start server
+/**
+ * ─── SERVER INITIALIZATION ───
+ */
+
 const startServer = async () => {
   try {
-    // 1. Validate Environment
-    const requiredVars = ['DATABASE_URL', 'JWT_SECRET'];
-    const missing = requiredVars.filter(v => !process.env[v]);
-    if (missing.length > 0) {
-      console.error(`❌ Missing environment variables: ${missing.join(', ')}`);
-      if (process.env.NODE_ENV === 'production') process.exit(1);
+    console.log('🔄 Initializing CerviCare Services...');
+
+    // 1. Database Connectivity & Seeding
+    await seederService.seed();
+    console.log('✅ Database connected and verified');
+
+    // 2. Third-party Integrations (Google Sheets)
+    if (process.env.GOOGLE_SHEETS_ID) {
+      await googleSheetsService.initialize();
+      await sheetsSyncService.initialize();
+      sheetsSyncService.startBackgroundProcessing();
+      console.log('✅ Google Sheets integration active');
+    } else {
+      console.log('ℹ️ Google Sheets integration skipped (no ID provided)');
     }
 
-    // 2. Initialize Database & Seed
-    const seederService = require('./services/seederService');
-    await seederService.seed();
-
-    // 3. Initialize Phase 3 services
-    await googleSheetsService.initialize();
-    await sheetsSyncService.initialize();
-
-    // 4. Start background processing
-    sheetsSyncService.startBackgroundProcessing();
-
+    // 3. Listen
     app.listen(PORT, () => {
-      console.log(`🚀 CerviCare Backend Server is running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log('✅ Services initialized successfully');
+      console.log(`🚀 CerviCare Backend is live on port ${PORT}`);
+      console.log(`🌍 Mode: ${process.env.NODE_ENV || 'development'}`);
     });
+
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error('❌ Critical failure during server startup:', error);
     process.exit(1);
   }
 };
 
+// Graceful Shutdown
+const shutdown = () => {
+  console.log('\n🛑 Shutting down gracefully...');
+  // Add cleanup logic here if needed (e.g. pool.end())
+  process.exit(0);
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
 startServer();
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
-  process.exit(0);
-});
 
 module.exports = app;

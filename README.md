@@ -1,167 +1,288 @@
-# CerviCare - AI Cervical Cancer Assistant Website
+<div align="center">
 
-A comprehensive web platform for cervical cancer risk assessment, protection plans, and healthcare guidance.
+# 🌸 CerviCare Backend
 
-## Features
+### *AI-Powered Preventive Healthcare Platform for Cervical Health*
 
-- **Risk Assessment**: AI-powered cervical health evaluation
-- **Protection Plans**: Personalized protection plans and recommendations
-- **Find Doctors**: GPS-based doctor finder
-- **Health Insights**: AI-driven health recommendations
-- **Vaccination Schedule**: Track vaccination schedules
-- **Two-Step Assessment**: Comprehensive health evaluation
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Express](https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](LICENSE)
 
-## Installation
+> **CerviCare** is a production-ready REST API backend that powers a preventive healthcare web application focused on cervical health awareness, AI-driven risk assessment, and personalized protection planning.
 
-1. Install Node.js (if not already installed)
-   - Download from https://nodejs.org/
+</div>
 
-2. Install dependencies:
+---
+
+## ✨ Key Features
+
+| Feature | Description |
+|---|---|
+| 🔐 **JWT Authentication** | Secure signup/login with bcrypt password hashing and role-based access control |
+| 👤 **User Profiles** | Comprehensive health profile management (age, lifestyle, diet, location) |
+| 🤖 **CerviBOT** | AI-powered cervical health chatbot (Python + FastAPI sub-project) |
+| 🎨 **Avatar System** | AI-generated DiceBear avatars, random selection, and custom uploads |
+| 📊 **Analytics Dashboard** | Admin analytics: user growth, engagement metrics, risk distribution |
+| 🛡️ **Protection Plans** | Personalized cervical health protection plans with progress tracking |
+| 🔔 **Webhook Integration** | Bot interaction logging and n8n automation workflow support |
+| 🚀 **Production Ready** | Helmet security, rate limiting, CORS, graceful shutdown, and structured logging |
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        CLIENT (Browser / App)                       │
+└─────────────────────┬───────────────────────────────────────────────┘
+                      │ HTTPS
+┌─────────────────────▼───────────────────────────────────────────────┐
+│                    CerviCare Backend API (Express.js)               │
+│                                                                     │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌─────────────┐  │
+│  │   Routes   │  │Controllers │  │  Services  │  │  Middleware │  │
+│  │  /api/auth │─▶│authCtrl    │─▶│GoogleShts  │  │  JWT auth   │  │
+│  │  /api/prof │  │profileCtrl │  │SheetsSync  │  │  Rate limit │  │
+│  │  /api/avt  │  │avatarCtrl  │  │Analytics   │  │  CORS/Helmet│  │
+│  │  /api/admin│  │adminCtrl   │  │Seeder      │  │  Roles RBAC │  │
+│  │  /api/bot  │  │webhookCtrl │  │Automation  │  │  Validation │  │
+│  └────────────┘  └────────────┘  └────────────┘  └─────────────┘  │
+│                                        │                            │
+└────────────────────────────────────────┼────────────────────────────┘
+                                         │
+           ┌─────────────────────────────┼──────────────────┐
+           │                             │                   │
+    ┌──────▼──────┐            ┌─────────▼────────┐  ┌─────▼──────┐
+    │  PostgreSQL  │            │  Google Sheets   │  │  CerviBOT  │
+    │  (Neon DB)   │            │  (Logging/CRM)   │  │  (Python)  │
+    └─────────────┘            └──────────────────┘  └────────────┘
+```
+
+---
+
+## 📁 Project Structure
+
+```
+cervicare-backend/
+├── src/
+│   ├── config/              # DB, JWT, Google Sheets configuration
+│   ├── controllers/         # Route handler logic
+│   ├── middleware/          # Auth, roles, security, validation
+│   ├── models/              # Database query models
+│   ├── routes/              # Express route definitions
+│   ├── services/            # Business logic & external integrations
+│   └── server.js            # App entry point
+├── CerviBOT/                # AI chatbot (Python/FastAPI subproject)
+│   ├── app.py               # FastAPI application
+│   ├── requirements.txt
+│   └── Dockerfile
+├── database/
+│   ├── schema.sql           # Canonical DB schema
+│   └── seed.sql             # Sample data for development
+├── docs/
+│   └── API.md               # Full API reference
+├── .env.example             # Environment variable template
+├── render.yaml              # Render.com deployment config
+└── README.md
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** >= 18.0.0
+- **npm** >= 9.0.0
+- **PostgreSQL** (or a [Neon](https://neon.tech) serverless instance)
+
+### 1. Clone & Install
+
 ```bash
+git clone https://github.com/satyamr814/cervicare-backend.git
+cd cervicare-backend
 npm install
 ```
 
-3. The `users.json` file will be automatically created when the server starts (it stores user account data).
+### 2. Configure Environment
 
-## Running the Server
-
-### Development Mode (with auto-reload):
 ```bash
-npm run dev
+cp .env.example .env
 ```
 
-### Production Mode:
+Edit `.env` with your actual values (see [Environment Variables](#-environment-variables) below).
+
+### 3. Set Up the Database
+
 ```bash
+# Run the schema against your PostgreSQL instance
+psql $DATABASE_URL -f database/schema.sql
+
+# (Optional) Load sample data
+psql $DATABASE_URL -f database/seed.sql
+```
+
+### 4. Run the Server
+
+```bash
+# Development (with auto-reload)
+npm run dev
+
+# Production
 npm start
 ```
 
-The server will start on `http://localhost:3000`
+The API will be available at `http://localhost:3000`.
 
-## File Structure
+### 5. Verify
 
-- `index.html` - Main homepage
-- `auth.html` - Login and signup page
-- `protection.html` - Protection plans page
-- `style.css` - Main stylesheet (includes protection page styles)
-- `auth.css` - Authentication page styles
-- `protection.css` - Additional protection page styles
-- `script.js` - Main JavaScript functionality
-- `auth.js` - Authentication page JavaScript
-- `protection.js` - Protection page specific JavaScript
-- `server.js` - Express.js backend server
-- `package.json` - Node.js dependencies
-- `users.json` - User data storage (automatically created, contains hashed passwords)
+```bash
+curl http://localhost:3000/api/health
+```
 
-## Navigation
+Expected response:
 
-- **Sign In / Sign Up**: Click on "Sign In" or "Sign Up" buttons in the navigation bar to access the authentication page
-- **Protection Plans**: Click on "Protection Plans" in the navigation bar to visit the protection plans page
-- **AskCervi**: Click on "AskCervi" to open the AI chatbot
-- **Find Doctors**: Click on "Find Doctors" to access GPS-based hospital finder
-- All links and buttons are functional
+```json
+{
+  "success": true,
+  "message": "CerviCare API is running",
+  "environment": "development",
+  "timestamp": "2025-01-01T00:00:00.000Z"
+}
+```
 
-## API Endpoints
+---
 
-### Pages
-- `GET /` - Serves the main homepage
-- `GET /protection.html` - Serves the protection plans page
-- `GET /auth.html` - Serves the login/signup page
+## 🔐 Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string (e.g. Neon, Supabase, local) |
+| `JWT_SECRET` | ✅ | Long random string for signing JWT tokens |
+| `PORT` | ❌ | Server port (default: `3000`) |
+| `NODE_ENV` | ❌ | `development` or `production` |
+| `ADMIN_KEY` | ✅ | Secret key for admin-only API endpoints |
+| `GOOGLE_SHEETS_ID` | ❌ | Google Sheets spreadsheet ID for logging |
+| `GOOGLE_CLIENT_EMAIL` | ❌ | Google service account email |
+| `GOOGLE_PRIVATE_KEY` | ❌ | Google service account private key |
+| `CORS_ORIGIN` | ❌ | Allowed origin(s) for CORS (default: `*`) |
+| `BCRYPT_ROUNDS` | ❌ | bcrypt salt rounds (default: `12`) |
+
+See `.env.example` for the full template with descriptions.
+
+---
+
+## 📡 API Endpoints
 
 ### Authentication
-- `POST /api/auth/signup` - Create a new user account
-  - Body: `{ firstName, lastName, email, password }`
-- `POST /api/auth/login` - Login with email and password
-  - Body: `{ email, password }`
-- `GET /api/auth/me` - Get current user information (requires authentication)
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `POST` | `/api/auth/signup` | Public | Register a new user |
+| `POST` | `/api/auth/login` | Public | Login, returns JWT token |
 
-### Other
-- `GET /api/protection-plans` - API endpoint for protection plans (future use)
-- `POST /api/protection-plans/save` - API endpoint to save protection plan data (future use)
+### User Profile
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/profile/:userId` | JWT | Get user profile |
+| `POST` | `/api/profile` | JWT | Create or update profile |
 
-## Features
+### Avatar
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/avatar/current/:userId` | JWT | Get current avatar |
+| `GET` | `/api/avatar/random` | JWT | Get a random DiceBear avatar |
+| `POST` | `/api/avatar/generate-ai` | JWT | Generate AI-style DiceBear avatar |
+| `POST` | `/api/avatar/upload` | JWT | Upload custom avatar (base64) |
 
-- **User Authentication**: Complete login and signup system with secure password hashing
-- **Risk Assessment**: AI-powered cervical health evaluation
-- **Protection Plans**: Personalized protection plans and recommendations
-- **Find Doctors**: GPS-based doctor finder with OpenStreetMap integration
-- **Health Insights**: AI-driven health recommendations
-- **AskCervi Chatbot**: Integrated AI chatbot from cervibot.onrender.com
-- **GPS Doctor Finder**: Real-time location-based hospital and doctor search
-- **Vaccination Schedule**: Track vaccination schedules
-- **Two-Step Assessment**: Comprehensive health evaluation
+### Protection Plans
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/protection/:userId` | JWT | Get user's protection plans & score |
+| `POST` | `/api/protection/plans/update` | JWT | Update plan status/notes |
 
-## Authentication
+### Admin
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/admin/users` | `X-Admin-Key` | Export user & profile data |
+| `GET` | `/api/analytics` | JWT + Admin | Platform analytics |
 
-The website includes a full authentication system:
+### System
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `GET` | `/api/health` | Public | Basic health check |
+| `POST` | `/api/bot-data/webhook` | Public | CerviBOT interaction logging |
 
-- **Sign Up / Create Account**: Users can create accounts with:
-  - First Name & Last Name
-  - Email Address
-  - Strong Password (with validation rules)
-  - Password Confirmation
-  
-- **Login**: Existing users can login with their email and password
+> 📄 See [`docs/API.md`](docs/API.md) for full request/response schemas.
 
-- **Password Requirements**:
-  - Minimum 8 characters
-  - At least one uppercase letter
-  - At least one lowercase letter
-  - At least one number
-  - At least one special character (!@#$%^&*)
+---
 
-- **Data Storage**: User credentials are securely stored in `users.json` file with bcrypt password hashing
+## 🤖 CerviBOT
 
-## Setup Instructions
+CerviBOT is a separate AI chatbot microservice built with **Python + FastAPI** located in the `CerviBOT/` directory. It provides intelligent responses about cervical health, HPV, screening schedules, and prevention.
 
-### Google Maps API Setup (Required for GPS features)
+```bash
+cd CerviBOT
+pip install -r requirements.txt
+python app.py
+```
 
-1. Get a Google Maps API Key:
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select an existing one
-   - Enable the following APIs:
-     - Maps JavaScript API
-     - Places API
-     - Geocoding API
-   - Create credentials (API Key)
-   - Restrict the API key to your domain (recommended)
+See [`CerviBOT/README.md`](CerviBOT/README.md) for details.
 
-2. Add your API key to `script.js`:
-   - Open `script.js`
-   - Find the line: `script.src = 'https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initGoogleMaps';`
-   - Replace `YOUR_GOOGLE_MAPS_API_KEY` with your actual API key
+---
 
-### Chatbot Integration
+## 🛡️ Security
 
-The chatbot is integrated from [cervibot.onrender.com](https://cervibot.onrender.com/). It will open in a modal when:
-- Clicking "AskCervi" in the navigation bar
-- Clicking "START" in the CerviBot section
+- **Helmet.js** — Sets security-hardened HTTP headers
+- **Rate Limiting** — Per-IP limits on auth (10/min) and API (100/min) endpoints
+- **JWT** — All protected routes require `Authorization: Bearer <token>`
+- **bcrypt** — Passwords hashed with configurable salt rounds (default 12)
+- **CORS** — Configurable allowed origins via `.env`
+- **Input Validation** — Joi schema validation on all inputs
+- **RBAC** — Role-based access control (`user`, `admin`)
 
-## Navigation Features
+---
 
-- **AskCervi**: Opens the integrated chatbot modal
-- **Find Doctors**: Opens GPS map to find nearby hospitals and doctors
-- **Protection Plans**: Links to the protection plans page
-- **GPS Doctor Finder**: Opens GPS map with hospital search functionality
+## 🧪 Running Tests
 
-## Technologies Used
+```bash
+npm test
+```
 
-- HTML5
-- CSS3
-- JavaScript (Vanilla)
-- Node.js
-- Express.js
-- bcrypt (password hashing)
-- UUID (user ID generation)
-- Leaflet.js (OpenStreetMap - no API key required)
-- Font Awesome Icons
-- Google Fonts (Montserrat)
+---
 
-## Browser Support
+## 🌐 Deployment
 
-- Chrome (latest) - Full support including GPS
-- Firefox (latest) - Full support including GPS
-- Safari (latest) - Full support including GPS
-- Edge (latest) - Full support including GPS
+This project is configured for **Render.com** via `render.yaml`.
 
-**Note**: GPS functionality requires browser location permissions to be granted by the user.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com)
 
+1. Fork this repository
+2. Connect to Render
+3. Set environment variables in the Render dashboard
+4. Deploy — Render will detect `render.yaml` automatically
+
+---
+
+## 📸 Screenshots
+
+| Home Dashboard | Protection Plan | CerviBOT |
+|---|---|---|
+| *Coming Soon* | *Coming Soon* | *Coming Soon* |
+
+---
+
+## 👨‍💻 Author
+
+**Satyam Raj** · [GitHub](https://github.com/satyamr814)
+
+---
+
+<div align="center">
+
+Made with ❤️ for women's health awareness
+
+⭐ Star this project if you find it useful!
+
+</div>

@@ -87,8 +87,22 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Phase 3 specific
-google-sheets-credentials.json
-n8n-workflow-exports/
+# Local Data (Runtime)
+*.csv
+*.json
+!package.json
+!package-lock.json
+!avatar-data.json.template
+uploads/
+
+# Build/Logs
+dist/
+build/
+*.log
+npm-debug.log*
+
+# Deployments
+render.yaml
 render-deployment-logs/
+n8n-workflow-exports/
 
